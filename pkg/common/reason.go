@@ -1,0 +1,7 @@
+package common
+
+const (
+	NOT_FOUND_STUDENT_STATUS                    = "NOT_FOUND_STUDENT_STATUS"
+	NOT_FOUND_MIN_CREDIT_CONFIG					= "NOT_FOUND_MIN_CREDIT_CONFIG"
+	
+)

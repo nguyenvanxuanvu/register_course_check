@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  shutdown-timeout-sec: 5
+service:
+  name: register_course_check
+  env: local
+
+log:
+  encoding: json
+  tracing: false
+
+debug:
+  gin: release
+
+  
+mysql:
+  url: 127.0.0.1:3306
+  username: 'root'
+  password: Xuanvu2312001@
+  schema: register_course_check
+
+
