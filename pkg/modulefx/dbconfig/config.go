@@ -48,7 +48,7 @@ func NewDBConfig(repo repository.ConfigRepository) (DBConfig, error) {
 }
 
 
-func (c *dbConfigObj) GetSubjectConfig(subjectId string) *dto.SubjectConfig {
+func (c *dbConfigObj) GetSubjectConfig(subjectId string) (*dto.SubjectConfig) {
 	return c.subjectConfigs[subjectId]
 }
 

@@ -32,6 +32,9 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	num_credits := 0
 	for _, course := range req.RegisterSubjects{
 		courseRegisterList = append(courseRegisterList, course.SubjectId)
+		if s.dbConfig.GetSubjectConfig(course.SubjectId) == nil{
+			return nil, errors.New(common.NOT_FOUND_SUBJECT_ID)
+		}
 		num_credits += s.dbConfig.GetSubjectConfig(course.SubjectId).NumCredits
 	}
 

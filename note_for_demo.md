@@ -71,14 +71,36 @@
 - checkMinCreditResult: PASS hoặc FAIL 
 
 
-# Response fail (Khi gặp lỗi kiểu không có data cho sv đó, tìm ko có config số tín chỉ tối thiểu)
+# Response fail (khi ko đọc được một số data)
 
-VD:
+- Ko tìm thấy sinh viên:
 ```
 {
     "error": {
         "code": 503,
         "reason": "NOT_FOUND_STUDENT_STATUS",
+        "domain": "register_course_check"
+    }
+}
+```
+
+- Không tìm thấy data về courseId:
+```
+{
+    "error": {
+        "code": 503,
+        "reason": "NOT_FOUND_SUBJECT_ID",
+        "domain": "register_course_check"
+    }
+}
+```
+
+- Không tìm thấy config số tín chỉ tối thiểu
+```
+{
+    "error": {
+        "code": 503,
+        "reason": "NOT_FOUND_MIN_CREDIT_CONFIG",
         "domain": "register_course_check"
     }
 }
