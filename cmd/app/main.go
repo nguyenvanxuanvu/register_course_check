@@ -9,9 +9,6 @@ import (
 	"register_course_check/mysql"
 	"register_course_check/config"
 	
-	
-	
-	
 	"register_course_check/pkg/modulefx"
 	
 )
@@ -20,7 +17,6 @@ var GitCommit string
 
 func printInfo() {
 	log.Println("Environment:", os.Getenv("appenv"))
-	log.Println("Git Commit:", GitCommit)
 }
 
 func main() {
@@ -32,8 +28,6 @@ func main() {
 		httpserver.Module,
 		mysql.Module,
 		modulefx.Module,
-		
-		
 		
 	)
 	app.Run()
