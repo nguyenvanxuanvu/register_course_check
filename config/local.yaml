@@ -15,8 +15,8 @@ debug:
   
 mysql:
   url: 127.0.0.1:3306
-  username: 'root'
-  password: Xuanvu2312001@
+  username: root
+  password: Bindeptrai231
   schema: register_course_check
 
 

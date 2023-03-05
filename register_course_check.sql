@@ -18,31 +18,16 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
-CREATE TABLE `min_credit` (
+CREATE TABLE `min_max_credit` (
   `int` bigint NOT NULL AUTO_INCREMENT,
   `academic_program` varchar(45) DEFAULT NULL,
   `semester` int DEFAULT NULL,
   `min_credit` int DEFAULT '0',
+  `max_credit` int DEFAULT '0',
   PRIMARY KEY (`int`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `result` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `student_id` int NOT NULL,
-  `subject` varchar(45) NOT NULL,
-  `result` int NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `student` (
-  `id` int NOT NULL,
-  `name` varchar(45) NOT NULL,
-  `class` varchar(45) DEFAULT NULL,
-  `academic_year` int DEFAULT NULL,
-  `ducation_program` varchar(45) DEFAULT NULL,
-  `student_status` int DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `subject` (
   `id` varchar(45) NOT NULL,
@@ -60,16 +45,9 @@ CREATE TABLE `subject_condition` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT INTO `min_credit` (`int`, `academic_program`, `semester`, `min_credit`) VALUES
-(1, 'DT', 191, 1);
+INSERT INTO `min_max_credit` (`int`, `academic_program`, `semester`, `min_credit`,  `max_credit`) VALUES
+(1, 'DT', 191, 1, 10);
 
-INSERT INTO `result` (`id`, `student_id`, `subject`, `result`) VALUES
-(1, 1915982, 'CO1', 2),
-(2, 1915982, 'CO2', 1);
-
-INSERT INTO `student` (`id`, `name`, `class`, `academic_year`, `ducation_program`, `student_status`) VALUES
-(1915982, 'Nguyen Van Xuan Vu', 'MT19KH03', 2019, 'DT', 1),
-(1915983, 'Nguyen Van A', 'MT19KH02', 2019, 'CLC', 1);
 
 INSERT INTO `subject` (`id`, `subject_name`, `num_credits`, `faculty`) VALUES
 ('CO1', 'AAA', 3, 'MT'),

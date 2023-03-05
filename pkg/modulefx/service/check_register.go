@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-
 	"register_course_check/pkg/common"
 	"register_course_check/pkg/dto"
 )
@@ -16,7 +15,7 @@ const PASS = "PASS"
 func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.CheckRequestDTO) (*dto.CheckResponseDTO, error) {
 	
 	// check student status 
-	studentStatus := s.CheckStudentStatus(int(req.StudentId))
+	studentStatus := s.client.GetStudentStatus(int(req.StudentId))
 	if studentStatus == 0{
 		return nil, errors.New(common.NOT_FOUND_STUDENT_STATUS)
 	}
@@ -58,7 +57,7 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 			}
 			for _,condition := range s.dbConfig.GetSubjectConfig(courseId).SubjectConditionConfig{
 				if condition.ConditionType == 1 || condition.ConditionType == 2{    // TQ, HT
-					listDoneCourse := s.GetListDoneCourse(int(req.StudentId))
+					listDoneCourse := s.client.GetListDoneCourse(int(req.StudentId))
 					if !CheckContain(listDoneCourse, condition.SubjectDesId){
 						subjectCheckResult.CheckResult = FAIL
 						subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
@@ -93,11 +92,12 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	// check min credit
 
 	checkMinCreditResult := PASS
-	minCreditsConfig := s.repository.GetMinCredit(req.AcademicProgram, int(req.Semester))
-	if (minCreditsConfig <= 0){
-		return nil, errors.New(common.NOT_FOUND_MIN_CREDIT_CONFIG)
+	minCreditsConfig, maxCreditsConfig := s.repository.GetMinMaxCredit(req.AcademicProgram, int(req.Semester))
+	if (minCreditsConfig <= 0 || maxCreditsConfig <= 0){
+		return nil, errors.New(common.NOT_FOUND_MIN_MAX_CREDIT_CONFIG)
 	}
-	if num_credits < minCreditsConfig {
+	
+	if num_credits < minCreditsConfig || num_credits > maxCreditsConfig{
 		checkMinCreditResult = FAIL
 	}
 
@@ -118,10 +118,6 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 }
 
 
-func (s *registerCourseCheckServiceImp) CheckStudentStatus (studentId int) int {
-	return s.repository.GetStudentStatus(studentId)
-}
-
 func CheckContain(courseNeedCheck []string, subjectId string) bool {
 	for _, courseId := range courseNeedCheck{
 		if courseId == subjectId {
@@ -131,7 +127,4 @@ func CheckContain(courseNeedCheck []string, subjectId string) bool {
 	return false
 }
 
-func (s *registerCourseCheckServiceImp) GetListDoneCourse(studentId int) []string{
-	return s.repository.GetListDoneCourse(studentId)
-}
 

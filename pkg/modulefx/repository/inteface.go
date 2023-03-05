@@ -12,9 +12,7 @@ type ConfigRepository interface {
 }
 
 type Repository interface {
-	GetStudentStatus(studentId int) (int)
-	GetMinCredit(academicProgram string, semester int) (int)
-	GetListDoneCourse(studentId int) []string
+	GetMinMaxCredit(academicProgram string, semester int) (int, int)
 }
 
 
