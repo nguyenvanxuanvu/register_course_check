@@ -7,6 +7,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/uptrace/opentelemetry-go-extra/otelsqlx v0.1.17
 	go.uber.org/fx v1.18.2
+	golang.org/x/exp v0.0.0-20230307190834-24139beb5833
 )
 
 require (

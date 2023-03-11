@@ -16,7 +16,7 @@ type SubjectConfig struct {
 type SubjectCondtionConfig struct {
 	SubjectId     string `db:"subject_id"`
 	SubjectDesId       string                     `db:"subject_des_id"`
-	ConditionType int      `db:"condition_type"`   //1 : TQ    2: HT   3: SH 
+	ConditionType int      `db:"condition_type"`   //1 : TQ    2: HT   3: SH  
 }
 
 

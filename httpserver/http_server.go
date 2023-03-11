@@ -17,7 +17,7 @@ func RunServer(lifecycle fx.Lifecycle, r *gin.Engine) {
 	port := viper.GetInt("server.port")
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
+		Addr:    fmt.Sprintf("127.0.0.1:%d", port),
 		Handler: mux,
 	}
 	lifecycle.Append(fx.Hook{

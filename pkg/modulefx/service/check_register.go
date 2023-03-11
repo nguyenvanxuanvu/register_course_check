@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"register_course_check/pkg/common"
+	"register_course_check/pkg/modulefx/client"
 	"register_course_check/pkg/dto"
+	"golang.org/x/exp/slices"
 )
 
 const NOT_PERMIT_REGISTER_COURSE = "NOT_PERMIT_REGISTER_COURSE"
@@ -30,11 +32,14 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	var courseRegisterList []string
 	num_credits := 0
 	for _, course := range req.RegisterSubjects{
-		courseRegisterList = append(courseRegisterList, course.SubjectId)
-		if s.dbConfig.GetSubjectConfig(course.SubjectId) == nil{
-			return nil, errors.New(common.NOT_FOUND_SUBJECT_ID)
+		if !slices.Contains(courseRegisterList, course.SubjectId){
+			courseRegisterList = append(courseRegisterList, course.SubjectId)
+			if s.dbConfig.GetSubjectConfig(course.SubjectId) == nil{
+				return nil, errors.New(common.NOT_FOUND_SUBJECT_ID)
+			}
+			num_credits += s.dbConfig.GetSubjectConfig(course.SubjectId).NumCredits
 		}
-		num_credits += s.dbConfig.GetSubjectConfig(course.SubjectId).NumCredits
+		
 	}
 
 	var subjectCheckResults []*dto.SubjectCheck
@@ -57,8 +62,8 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 			}
 			for _,condition := range s.dbConfig.GetSubjectConfig(courseId).SubjectConditionConfig{
 				if condition.ConditionType == 1 || condition.ConditionType == 2{    // TQ, HT
-					listDoneCourse := s.client.GetListDoneCourse(int(req.StudentId))
-					if !CheckContain(listDoneCourse, condition.SubjectDesId){
+					listStudyResult := s.client.GetStudyResult(int(req.StudentId))
+					if !CheckContain(listStudyResult, condition.SubjectDesId){
 						subjectCheckResult.CheckResult = FAIL
 						subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
 							SubjectDesId: condition.SubjectDesId,
@@ -71,7 +76,7 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 
 				}
 				if condition.ConditionType == 3{   //SH
-					if !CheckContain(courseNeedChecks, condition.SubjectDesId){
+					if !slices.Contains(courseNeedChecks, condition.SubjectDesId){
 						subjectCheckResult.CheckResult = FAIL
 						subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
 							SubjectDesId: condition.SubjectDesId,
@@ -107,7 +112,6 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 		status = FAIL
 	}
 
-	
 	return &dto.CheckResponseDTO{
 		Status: status,
 		StudentStatus: NORMAL_STATUS_STUDENT,
@@ -118,9 +122,9 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 }
 
 
-func CheckContain(courseNeedCheck []string, subjectId string) bool {
-	for _, courseId := range courseNeedCheck{
-		if courseId == subjectId {
+func CheckContain(courseResults []client.CourseResult, subjectId string) bool {
+	for _, courseResult := range courseResults{
+		if courseResult.CourseId == subjectId {
 			return true
 		}
 	}
