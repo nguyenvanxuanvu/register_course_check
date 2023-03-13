@@ -17,5 +17,6 @@ type SubjectCheck struct {
 
 type Reason struct {
 	SubjectDesId string `json:"subjectDesId"`
+	SubjectDesName string `json:"subjectDesName"`
 	ConditionType int `json:"conditionType"`         //  1: TQ   2: HT   3:SH
 }
