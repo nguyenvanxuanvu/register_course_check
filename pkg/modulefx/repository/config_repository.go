@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"github.com/jmoiron/sqlx"
 	"register_course_check/pkg/dto"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type configRepository struct {
@@ -37,24 +38,28 @@ func (r *configRepository) GetSubjectConfigs() ([]*dto.SubjectConfig, error) {
 
 
 const SUBJECT_CONDITION_TABLE = "subject_condition"
-const SELECT_SUBJECT_CONDITION_CONFIG = "SELECT `subject_id`,`subject_des_id`,`condition_type` FROM `" + SUBJECT_CONDITION_TABLE + "`"
+const SELECT_SUBJECT_CONDITION_CONFIG = "SELECT `subject_id`,`condition` FROM `" + SUBJECT_CONDITION_TABLE + "`"
 
-func (r *configRepository) GetSubjectConditionConfigs() (map[string][]*dto.SubjectCondtionConfig, error) {
+func (r *configRepository) GetSubjectConditionConfigs() (map[string]*dto.SubjectConditionConfig, error) {
 	rows, err := r.db.Queryx(SELECT_SUBJECT_CONDITION_CONFIG)
 	if err != nil {
 		return nil, err
 	}
-	subjectConditionConfigs := map[string][]*dto.SubjectCondtionConfig{}
+	subjectConditionConfigs := map[string]*dto.SubjectConditionConfig{}
 	for rows.Next() {
-		conditionConfig := &dto.SubjectCondtionConfig{}
+		conditionConfig := &dto.SubjectConditionConfig{}
 		err = rows.StructScan(conditionConfig)
 		if err != nil {
 			return nil, err
 		}
-		subjectConditionConfigs[conditionConfig.SubjectId] = append(subjectConditionConfigs[conditionConfig.SubjectId], conditionConfig)
+		subjectConditionConfigs[conditionConfig.SubjectId] = conditionConfig
 	}
+	
 	return subjectConditionConfigs, nil
 }
+
+
+
 
 
 

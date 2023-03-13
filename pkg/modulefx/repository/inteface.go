@@ -7,7 +7,7 @@ import (
 
 type ConfigRepository interface {
 	GetSubjectConfigs() ([]*dto.SubjectConfig, error)
-	GetSubjectConditionConfigs() (map[string][]*dto.SubjectCondtionConfig, error)
+	GetSubjectConditionConfigs() (map[string]*dto.SubjectConditionConfig, error)
 	
 }
 

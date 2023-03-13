@@ -37,35 +37,39 @@ CREATE TABLE `subject` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
 CREATE TABLE `subject_condition` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `subject_id` varchar(45) NOT NULL,
-  `subject_des_id` varchar(45) NOT NULL,
-  `condition_type` int NOT NULL,
+  `condition` json NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-INSERT INTO `min_max_credit` (`int`, `academic_program`, `semester`, `min_credit`,  `max_credit`) VALUES
-(1, 'DT', 191, 1, 10);
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-INSERT INTO `subject` (`id`, `subject_name`, `num_credits`, `faculty`) VALUES
-('CO1', 'AAA', 3, 'MT'),
-('CO2', 'BBB', 4, 'HH'),
-('CO3', 'CCC', 5, 'MT');
-
-INSERT INTO `subject_condition` (`id`, `subject_id`, `subject_des_id`, `condition_type`) VALUES
-(1, 'CO3', 'CO1', 1),
-(2, 'CO3', 'CO2', 1),
-(3, 'CO1', 'CO2', 3),
-(4, 'CO2', 'CO1', 3);
+INSERT INTO `register_course_check`.`min_max_credit`
+(`int`,`academic_program`,`semester`,`min_credit`,`max_credit`)
+VALUES
+('1', 'DT', '191', '1', '10');
 
 
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+INSERT INTO `register_course_check`.`subject`
+(`id`,`subject_name`,`num_credits`,`faculty`)
+VALUES
+('CO1', 'AAA', '3', 'MT'),
+('CO2', 'BBB', '4', 'HH'),
+('CO3', 'CCC', '5', 'MT'),
+('CO4', 'DDD', '3', 'CK');
+
+
+
+
+INSERT INTO `register_course_check`.`subject_condition`
+(`id`,`subject_id`,`condition`)
+VALUES
+('1', 'CO1', '{\"data\": \"OR\", \"left\": {\"data\": \"CO2-1\"}, \"right\": {\"data\": \"AND\", \"left\": {\"data\": \"AND\", \"left\": {\"data\": \"CO5-1\"}, \"right\": {\"data\": \"CO6-2\"}}, \"right\": {\"data\": \"CO4-3\"}}}'),
+('2', 'CO2', '{\"data\": \"CO3-1\"}');
+
+
+
+

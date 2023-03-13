@@ -38,6 +38,11 @@ func (c *client) GetStudyResult(studentId int) []CourseResult {
 					CourseName: "Lập trình web",
 					Result: 1,
 				},
+				{
+					CourseId: "CO3",
+					CourseName: "Lập trình web",
+					Result: 1,
+				},
 
 			},
 		}
