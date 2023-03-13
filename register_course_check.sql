@@ -42,8 +42,11 @@ CREATE TABLE `subject_condition` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `subject_id` varchar(45) NOT NULL,
   `condition` json NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`),
+  KEY `subject_id_fk_idx` (`subject_id`),
+  CONSTRAINT `subject_id_fk` FOREIGN KEY (`subject_id`) REFERENCES `subject` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 
 INSERT INTO `register_course_check`.`min_max_credit`

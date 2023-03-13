@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"register_course_check/pkg/common"
 	"register_course_check/pkg/dto"
 	"register_course_check/pkg/modulefx/client"
@@ -116,12 +115,15 @@ func (s *registerCourseCheckServiceImp) CheckConditionRecursion(courseId string,
 			return false
 		}
 	} else {
+		leftResult := s.CheckConditionRecursion(courseId, courseName, subjectCheckResult, c.Left, results, courseRegisterList)
+		rightResult := s.CheckConditionRecursion(courseId, courseName, subjectCheckResult, c.Right, results, courseRegisterList)
 		if c.Data == "AND" {
-			return s.CheckConditionRecursion(courseId, courseName, subjectCheckResult, c.Left, results, courseRegisterList) &&
-				s.CheckConditionRecursion(courseId, courseName, subjectCheckResult, c.Right, results, courseRegisterList)
+			
+			return leftResult && rightResult
+				
 		} else {
-			return s.CheckConditionRecursion(courseId, courseName, subjectCheckResult, c.Left, results, courseRegisterList) ||
-				s.CheckConditionRecursion(courseId, courseName, subjectCheckResult, c.Right, results, courseRegisterList)
+			
+			return leftResult || rightResult
 		}
 
 	}
@@ -135,7 +137,7 @@ func (s *registerCourseCheckServiceImp) CheckCondition(courseId string, courseNa
 	if dt[1] == "1" {
 		
 
-		if !CheckContain(results, dt[0]) || notSuccess(results, dt[0], 1) {
+		if !CheckContain(results, dt[0]) || !isSuccess(results, dt[0], 1) {
 			subjectCheckResult.CheckResult = FAIL
 			subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
 				SubjectDesId:   dt[0],
@@ -148,7 +150,7 @@ func (s *registerCourseCheckServiceImp) CheckCondition(courseId string, courseNa
 		return true
 	} else if dt[1] == "2" {
 		
-		if !CheckContain(results, dt[0]) || notSuccess(results, dt[0], 2) {
+		if !CheckContain(results, dt[0]) || !isSuccess(results, dt[0], 2) {
 			subjectCheckResult.CheckResult = FAIL
 			subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
 				SubjectDesId:   dt[0],
@@ -160,7 +162,7 @@ func (s *registerCourseCheckServiceImp) CheckCondition(courseId string, courseNa
 		}
 		return true
 	} else {
-		if !slices.Contains(courseRegisterList, dt[0]) {
+		if (!slices.Contains(courseRegisterList, dt[0]) && !isSuccess(results, dt[0], 2)) {
 			subjectCheckResult.CheckResult = FAIL
 			subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
 				SubjectDesId:   dt[0],
@@ -186,13 +188,13 @@ func CheckContain(courseResults []client.CourseResult, subjectId string) bool {
 }
 
 // theType is the condition check (1,2)
-// check a result of course is not success or not
-// return true if not success
+// check a result of course is success or not
+// return true if success
 
-func notSuccess(courseResults []client.CourseResult, courseId string, theType int) bool {
+func isSuccess(courseResults []client.CourseResult, courseId string, theType int) bool {
 	if theType == 1 {
 		for _, result := range courseResults {
-			if result.CourseId == courseId && result.Result != 1 {
+			if result.CourseId == courseId && result.Result == 1 {
 				return true
 			}
 		}
@@ -200,11 +202,11 @@ func notSuccess(courseResults []client.CourseResult, courseId string, theType in
 
 	} else {
 		for _, result := range courseResults {
-			if result.CourseId == courseId && result.Result != 1 && result.Result != 2 {
+			if result.CourseId == courseId && (result.Result == 1 || result.Result == 2) {
 				return true
 			}
 		}
 		return false
-	}
+	} 
 
 }

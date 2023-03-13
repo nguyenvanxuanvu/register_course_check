@@ -34,12 +34,12 @@ func (c *client) GetStudyResult(studentId int) []CourseResult {
 				{
 					CourseId:   "CO4",
 					CourseName: "Lập trình web",
-					Result:     1,
+					Result:     3,
 				},
 				{
-					CourseId:   "CO3",
+					CourseId:   "CO2",
 					CourseName: "Lập trình web",
-					Result:     2,
+					Result:     1,
 				},
 			},
 		}
