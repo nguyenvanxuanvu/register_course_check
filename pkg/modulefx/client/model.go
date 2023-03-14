@@ -1,11 +1,15 @@
 package client
 
+
+type Students struct {
+    Students []StudentInfo `json:"students"`
+}
 type StudentInfo struct {
 	StudentId int `json:"studentId"`
 	StudentName string `json:"studentName"`
 	Falcuty string     `json:"falcuty"`
 	AcademicProgram  string  `json:"academicProgram"`
-	StudyResults []CourseResult `json:"studyResult"`
+	StudyResults []CourseResult `json:"studyResults"`
 
 }
 

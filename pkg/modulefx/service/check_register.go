@@ -23,7 +23,15 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 
 	// check student status
 	studentId := int(req.StudentId)
-	studentStatus := s.client.GetStudentStatus(studentId)
+	studentStatus, _ := s.cacheService.GetStudentStatus(ctx, studentId)
+	if studentStatus == -1 {
+		studentStatus = s.client.GetStudentStatus(studentId)
+		_ , err := s.cacheService.TrySetStudentStatus(ctx, studentId, studentStatus)
+		if err != nil {
+			return nil, errors.New(common.SET_STUDENT_STATUS_FAIL_REDIS)
+		}
+	}
+	
 
 	if studentStatus == 2 { // not permit to register student
 		return &dto.CheckResponseDTO{
@@ -36,7 +44,6 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 		return nil, errors.New(common.NOT_FOUND_STUDENT_STATUS)
 	}
 
-	// Check course (HT, TQ, SH)
 	var courseRegisterList []string
 	num_credits := 0
 	for _, course := range req.RegisterCourses {
@@ -64,23 +71,41 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 		}
 	}
 
-	for _, courseId := range courseNeedChecks {
-		condition := s.dbConfig.GetCourseConfig(courseId).CourseConditionConfig
+	
 
-		listStudyResult := s.client.GetStudyResult(int(req.StudentId))
-
-		courseCheckResult := &dto.CourseCheck{
-			CourseId:   courseId,
-			CourseName: s.dbConfig.GetCourseConfig(courseId).CourseName,
-			CheckResult: PASS,
-		}
-		if !s.CheckConditionRecursion(courseId, courseCheckResult.CourseName, courseCheckResult, &condition.Condition, listStudyResult, courseRegisterList) {
-			if courseCheckResult.CheckResult != PASS {
-				courseCheckResults = append(courseCheckResults, courseCheckResult)
+	if len(courseNeedChecks) > 0{
+		var listStudyResult []client.CourseResult
+		listStudyResult, _ = s.cacheService.GetStudyResult(ctx, studentId)
+		if listStudyResult == nil {
+			listStudyResult = s.client.GetStudyResult(int(req.StudentId))
+			_ , err := s.cacheService.TrySetStudyResult(ctx, studentId, listStudyResult)
+			if err != nil {
+				return nil, errors.New(common.SET_STUDY_RESULT_FAIL_REDIS)
 			}
 		}
+		
 
+		for _, courseId := range courseNeedChecks {
+			condition := s.dbConfig.GetCourseConfig(courseId).CourseConditionConfig
+
+
+			courseCheckResult := &dto.CourseCheck{
+				CourseId:   courseId,
+				CourseName: s.dbConfig.GetCourseConfig(courseId).CourseName,
+				CheckResult: PASS,
+			}
+			if !s.CheckConditionRecursion(courseId, courseCheckResult.CourseName, courseCheckResult, &condition.Condition, listStudyResult, courseRegisterList) {
+				if courseCheckResult.CheckResult != PASS {
+					courseCheckResults = append(courseCheckResults, courseCheckResult)
+				}
+			}
+
+		}
 	}
+
+	
+
+	
 
 	// check min credit
 

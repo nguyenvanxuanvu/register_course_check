@@ -1,5 +1,12 @@
 package client
 
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+)
+
 type client struct {
 }
 
@@ -10,7 +17,7 @@ func NewClient() Client {
 func (c *client) GetStudentStatus(studentId int) int {
 	// Get student status from core service
 	//http.Get("")
-	if studentId == 1915982 {
+	if studentId == 1915982 || studentId == 1915983 {
 		return 1
 	} else {
 		return 0
@@ -18,35 +25,27 @@ func (c *client) GetStudentStatus(studentId int) int {
 }
 
 func (c *client) GetStudyResult(studentId int) []CourseResult {
-	// Get student study result from core service
-	if studentId == 1915982 {
-		studentInfo := &StudentInfo{
-			StudentId:       1915982,
-			StudentName:     "Nguyễn Văn Xuân Vũ",
-			Falcuty:         "KHMT",
-			AcademicProgram: "DT",
-			StudyResults: []CourseResult{
-				{
-					CourseId:   "CO1",
-					CourseName: "Công nghệ phần mềm",
-					Result:     1,
-				},
-				{
-					CourseId:   "CO4",
-					CourseName: "Lập trình web",
-					Result:     3,
-				},
-				{
-					CourseId:   "CO3",
-					CourseName: "Lập trình web",
-					Result:     1,
-				},
-			},
-		}
 
-		return studentInfo.StudyResults
-
-	} else {
-		return nil
+	jsonFile, err := os.Open("pkg/modulefx/client/student.json")
+	if err != nil {
+		fmt.Println(err)
 	}
+
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var students Students
+
+	json.Unmarshal(byteValue, &students)
+
+	// Get student study result from core service
+
+	for _, student := range students.Students {
+		if student.StudentId == studentId {
+			return student.StudyResults
+		}
+	}
+	return nil
+
 }

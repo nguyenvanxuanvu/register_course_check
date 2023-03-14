@@ -1,0 +1,44 @@
+{
+    "students": [
+    {
+      "studentId":       1915982,
+      "studentName":     "Nguyễn Văn Xuân Vũ",
+      "falcuty":         "KHMT",
+      "academicProgram": "DT",
+      "studyResults": [
+        {
+            "courseId":   "CO1",
+            "courseName": "Công nghệ phần mềm",
+            "result":     1
+        },
+        {
+            "courseId":   "CO4",
+            "courseName": "Lập trình web",
+            "result":     1
+        },
+        {
+            "courseId":   "CO3",
+            "courseName": "Lập trình nâng cao",
+            "result":     1
+        }
+      ]
+    },
+    {
+        "studentId":       1915983,
+        "studentName":     "Nguyễn Văn Xuân Vũ",
+        "falcuty":         "KHMT",
+        "academicProgram": "DT",
+        "studyResults": [
+          {
+              "courseId":   "CO6",
+              "courseName": "Công nghệ phần mềm",
+              "result":     1
+          }
+        ]
+      }
+    
+  ]
+}
+
+
+
