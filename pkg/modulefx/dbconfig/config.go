@@ -47,7 +47,3 @@ func (c *dbConfigObj) GetSubjectConfig(subjectId string) (*dto.SubjectConfig) {
 }
 
 
-func (c *dbConfigObj) GetSubjectName(subjectId string) string {
-	return c.subjectConfigs[subjectId].SubjectName
-}
-

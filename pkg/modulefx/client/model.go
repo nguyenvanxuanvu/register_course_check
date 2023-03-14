@@ -12,5 +12,5 @@ type StudentInfo struct {
 type CourseResult struct {
 	CourseId string `json:"courseId"`
 	CourseName string `json:"courseName"`
-	Result  int 	`json:"result"`              // 1 : Dat   2: Dang hoc   3: Khong dat   4: Chua hoc
+	Result  int 	`json:"result"`              // 1 : Dat   2: Dang hoc   3: Khong dat
 }

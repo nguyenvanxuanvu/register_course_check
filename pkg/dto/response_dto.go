@@ -6,6 +6,7 @@ type CheckResponseDTO struct {
 	StudentStatus string `json:"studentStatus"`
 	SubjectChecks []*SubjectCheck `json:"subjectChecks"`
 	CheckMinCreditResult string `json:"checkMinCreditResult"`
+	CheckMaxCreditResult string `json:"checkMaxCreditResult"`
 }
 
 type SubjectCheck struct {

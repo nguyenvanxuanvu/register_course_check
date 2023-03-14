@@ -9,5 +9,4 @@ import (
 
 type DBConfig interface {
 	GetSubjectConfig(subjectId string) (*dto.SubjectConfig)
-	GetSubjectName(subjectId string) string
 }

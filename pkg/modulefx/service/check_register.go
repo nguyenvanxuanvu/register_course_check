@@ -71,8 +71,8 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 			SubjectName: s.dbConfig.GetSubjectConfig(courseId).SubjectName,
 			CheckResult: PASS,
 		}
-		if !s.CheckConditionRecursion(courseId, s.dbConfig.GetSubjectName(courseId), subjectCheckResult, &condition.Condition, listStudyResult, courseRegisterList) {
-			if subjectCheckResult.CheckResult != "PASS" {
+		if !s.CheckConditionRecursion(courseId, subjectCheckResult.SubjectName, subjectCheckResult, &condition.Condition, listStudyResult, courseRegisterList) {
+			if subjectCheckResult.CheckResult != PASS {
 				subjectCheckResults = append(subjectCheckResults, subjectCheckResult)
 			}
 		}
@@ -82,17 +82,30 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	// check min credit
 
 	checkMinCreditResult := PASS
+	checkMaxCreditResult := PASS
 	minCreditsConfig, maxCreditsConfig := s.repository.GetMinMaxCredit(req.AcademicProgram, int(req.Semester))
-	if minCreditsConfig <= 0 || maxCreditsConfig <= 0 {
-		return nil, errors.New(common.NOT_FOUND_MIN_MAX_CREDIT_CONFIG)
+
+	if minCreditsConfig < 0 {
+		return nil, errors.New(common.NOT_FOUND_MIN_CREDIT_CONFIG)
+	}
+	if maxCreditsConfig < 0 {
+		return nil, errors.New(common.NOT_FOUND_MAX_CREDIT_CONFIG)
 	}
 
-	if num_credits < minCreditsConfig || num_credits > maxCreditsConfig {
+	if num_credits < minCreditsConfig {
 		checkMinCreditResult = FAIL
 	}
 
+	if num_credits > maxCreditsConfig {
+		checkMaxCreditResult = FAIL
+	}
+
+	if minCreditsConfig > maxCreditsConfig {
+		return nil, errors.New(common.MIN_MAX_CONFIG_WRONG)
+	}
+
 	status := PASS
-	if !(len(subjectCheckResults) == 0 && checkMinCreditResult == PASS) {
+	if !(len(subjectCheckResults) == 0 && checkMinCreditResult == PASS && checkMaxCreditResult == PASS) {
 		status = FAIL
 	}
 
@@ -101,6 +114,7 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 		StudentStatus:        NORMAL_STATUS_STUDENT,
 		SubjectChecks:        subjectCheckResults,
 		CheckMinCreditResult: checkMinCreditResult,
+		CheckMaxCreditResult: checkMaxCreditResult,
 	}, nil
 }
 
@@ -118,11 +132,11 @@ func (s *registerCourseCheckServiceImp) CheckConditionRecursion(courseId string,
 		leftResult := s.CheckConditionRecursion(courseId, courseName, subjectCheckResult, c.Left, results, courseRegisterList)
 		rightResult := s.CheckConditionRecursion(courseId, courseName, subjectCheckResult, c.Right, results, courseRegisterList)
 		if c.Data == "AND" {
-			
+
 			return leftResult && rightResult
-				
+
 		} else {
-			
+
 			return leftResult || rightResult
 		}
 
@@ -135,38 +149,37 @@ func (s *registerCourseCheckServiceImp) CheckCondition(courseId string, courseNa
 
 	dt := strings.Split(data, "-")
 	if dt[1] == "1" {
-		
 
 		if !CheckContain(results, dt[0]) || !isSuccess(results, dt[0], 1) {
 			subjectCheckResult.CheckResult = FAIL
 			subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
 				SubjectDesId:   dt[0],
-				SubjectDesName: s.dbConfig.GetSubjectName(dt[0]),
+				SubjectDesName: s.dbConfig.GetSubjectConfig(dt[0]).SubjectName,
 				ConditionType:  1,
 			})
-			
+
 			return false
 		}
 		return true
 	} else if dt[1] == "2" {
-		
+
 		if !CheckContain(results, dt[0]) || !isSuccess(results, dt[0], 2) {
 			subjectCheckResult.CheckResult = FAIL
 			subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
 				SubjectDesId:   dt[0],
-				SubjectDesName: s.dbConfig.GetSubjectName(dt[0]),
+				SubjectDesName: s.dbConfig.GetSubjectConfig(dt[0]).SubjectName,
 				ConditionType:  2,
 			})
-			
+
 			return false
 		}
 		return true
 	} else {
-		if (!slices.Contains(courseRegisterList, dt[0]) && !isSuccess(results, dt[0], 2)) {
+		if !slices.Contains(courseRegisterList, dt[0]) && !isSuccess(results, dt[0], 2) {
 			subjectCheckResult.CheckResult = FAIL
 			subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
 				SubjectDesId:   dt[0],
-				SubjectDesName: s.dbConfig.GetSubjectName(dt[0]),
+				SubjectDesName: s.dbConfig.GetSubjectConfig(dt[0]).SubjectName,
 				ConditionType:  3,
 			})
 			return false
@@ -194,7 +207,7 @@ func CheckContain(courseResults []client.CourseResult, subjectId string) bool {
 func isSuccess(courseResults []client.CourseResult, courseId string, theType int) bool {
 	if theType == 1 {
 		for _, result := range courseResults {
-			if result.CourseId == courseId && result.Result == 1 {
+			if result.CourseId == courseId && (result.Result == 1 || result.Result == 2){
 				return true
 			}
 		}
@@ -202,11 +215,11 @@ func isSuccess(courseResults []client.CourseResult, courseId string, theType int
 
 	} else {
 		for _, result := range courseResults {
-			if result.CourseId == courseId && (result.Result == 1 || result.Result == 2) {
+			if result.CourseId == courseId {
 				return true
 			}
 		}
 		return false
-	} 
+	}
 
 }
