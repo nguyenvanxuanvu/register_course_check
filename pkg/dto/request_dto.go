@@ -6,10 +6,10 @@ type CheckRequestDTO struct {
 	StudentId uint64 `json:"studentId"`
 	AcademicProgram string `json:"academicProgram"`
 	Semester uint64	`json:"semester"`
-	RegisterSubjects []*Subject `json:"registerSubjects"`
+	RegisterCourses []*Course `json:"registerCourses"`
 }
 
-type Subject struct {
-	SubjectId string `json:"subjectId"`
+type Course struct {
+	CourseId string `json:"courseId"`
 }
 

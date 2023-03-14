@@ -15,6 +15,9 @@ const NOT_PERMIT_REGISTER_COURSE = "NOT_PERMIT_REGISTER_COURSE"
 const NORMAL_STATUS_STUDENT = "NORMAL"
 const FAIL = "FAIL"
 const PASS = "PASS"
+const AND  = "AND"
+const TQ = "1"
+const HT = "2"
 
 func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.CheckRequestDTO) (*dto.CheckResponseDTO, error) {
 
@@ -36,15 +39,15 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	// Check course (HT, TQ, SH)
 	var courseRegisterList []string
 	num_credits := 0
-	for _, course := range req.RegisterSubjects {
-		if slices.Contains(courseRegisterList, course.SubjectId) {
+	for _, course := range req.RegisterCourses {
+		if slices.Contains(courseRegisterList, course.CourseId) {
 			return nil, errors.New(common.DUPLICATE_COURSE_REGISTER)
 		} else {
-			courseRegisterList = append(courseRegisterList, course.SubjectId)
-			if s.dbConfig.GetSubjectConfig(course.SubjectId) == nil {
-				return nil, errors.New(common.NOT_FOUND_SUBJECT_ID + ": " + course.SubjectId)
+			courseRegisterList = append(courseRegisterList, course.CourseId)
+			if s.dbConfig.GetCourseConfig(course.CourseId) == nil {
+				return nil, errors.New(common.NOT_FOUND_COURSE_ID + ": " + course.CourseId)
 			}
-			num_credits += s.dbConfig.GetSubjectConfig(course.SubjectId).NumCredits
+			num_credits += s.dbConfig.GetCourseConfig(course.CourseId).NumCredits
 		}
 	}
 
@@ -52,28 +55,28 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 		return nil, errors.New(common.NOT_FOUND_COURSE_REGISTER)
 	}
 
-	var subjectCheckResults []*dto.SubjectCheck
+	var courseCheckResults []*dto.CourseCheck
 	var courseNeedChecks []string
 
 	for _, courseId := range courseRegisterList {
-		if s.dbConfig.GetSubjectConfig(courseId).SubjectConditionConfig != nil {
+		if s.dbConfig.GetCourseConfig(courseId).CourseConditionConfig != nil {
 			courseNeedChecks = append(courseNeedChecks, courseId)
 		}
 	}
 
 	for _, courseId := range courseNeedChecks {
-		condition := s.dbConfig.GetSubjectConfig(courseId).SubjectConditionConfig
+		condition := s.dbConfig.GetCourseConfig(courseId).CourseConditionConfig
 
 		listStudyResult := s.client.GetStudyResult(int(req.StudentId))
 
-		subjectCheckResult := &dto.SubjectCheck{
-			SubjectId:   courseId,
-			SubjectName: s.dbConfig.GetSubjectConfig(courseId).SubjectName,
+		courseCheckResult := &dto.CourseCheck{
+			CourseId:   courseId,
+			CourseName: s.dbConfig.GetCourseConfig(courseId).CourseName,
 			CheckResult: PASS,
 		}
-		if !s.CheckConditionRecursion(courseId, subjectCheckResult.SubjectName, subjectCheckResult, &condition.Condition, listStudyResult, courseRegisterList) {
-			if subjectCheckResult.CheckResult != PASS {
-				subjectCheckResults = append(subjectCheckResults, subjectCheckResult)
+		if !s.CheckConditionRecursion(courseId, courseCheckResult.CourseName, courseCheckResult, &condition.Condition, listStudyResult, courseRegisterList) {
+			if courseCheckResult.CheckResult != PASS {
+				courseCheckResults = append(courseCheckResults, courseCheckResult)
 			}
 		}
 
@@ -105,14 +108,14 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	}
 
 	status := PASS
-	if !(len(subjectCheckResults) == 0 && checkMinCreditResult == PASS && checkMaxCreditResult == PASS) {
+	if !(len(courseCheckResults) == 0 && checkMinCreditResult == PASS && checkMaxCreditResult == PASS) {
 		status = FAIL
 	}
 
 	return &dto.CheckResponseDTO{
 		Status:               status,
 		StudentStatus:        NORMAL_STATUS_STUDENT,
-		SubjectChecks:        subjectCheckResults,
+		CourseChecks:         courseCheckResults,
 		CheckMinCreditResult: checkMinCreditResult,
 		CheckMaxCreditResult: checkMaxCreditResult,
 	}, nil
@@ -121,17 +124,17 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 // recursion of check condition
 // return true if pass condition
 
-func (s *registerCourseCheckServiceImp) CheckConditionRecursion(courseId string, courseName string, subjectCheckResult *dto.SubjectCheck, c *dto.SubjectCondition, results []client.CourseResult, courseRegisterList []string) bool {
+func (s *registerCourseCheckServiceImp) CheckConditionRecursion(courseId string, courseName string, courseCheckResult *dto.CourseCheck, c *dto.CourseCondition, results []client.CourseResult, courseRegisterList []string) bool {
 	if c.Left == nil && c.Right == nil {
-		if s.CheckCondition(courseId, courseName, subjectCheckResult, c.Data, results, courseRegisterList) {
+		if s.CheckCondition(courseId, courseName, courseCheckResult, c.Data, results, courseRegisterList) {
 			return true
 		} else {
 			return false
 		}
 	} else {
-		leftResult := s.CheckConditionRecursion(courseId, courseName, subjectCheckResult, c.Left, results, courseRegisterList)
-		rightResult := s.CheckConditionRecursion(courseId, courseName, subjectCheckResult, c.Right, results, courseRegisterList)
-		if c.Data == "AND" {
+		leftResult := s.CheckConditionRecursion(courseId, courseName, courseCheckResult, c.Left, results, courseRegisterList)
+		rightResult := s.CheckConditionRecursion(courseId, courseName, courseCheckResult, c.Right, results, courseRegisterList)
+		if c.Data == AND {
 
 			return leftResult && rightResult
 
@@ -145,29 +148,29 @@ func (s *registerCourseCheckServiceImp) CheckConditionRecursion(courseId string,
 
 // check condition of each object (data)
 // return true if pass condition
-func (s *registerCourseCheckServiceImp) CheckCondition(courseId string, courseName string, subjectCheckResult *dto.SubjectCheck, data string, results []client.CourseResult, courseRegisterList []string) bool {
+func (s *registerCourseCheckServiceImp) CheckCondition(courseId string, courseName string, courseCheckResult *dto.CourseCheck, data string, results []client.CourseResult, courseRegisterList []string) bool {
 
 	dt := strings.Split(data, "-")
-	if dt[1] == "1" {
+	if dt[1] == TQ {
 
 		if !CheckContain(results, dt[0]) || !isSuccess(results, dt[0], 1) {
-			subjectCheckResult.CheckResult = FAIL
-			subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
-				SubjectDesId:   dt[0],
-				SubjectDesName: s.dbConfig.GetSubjectConfig(dt[0]).SubjectName,
+			courseCheckResult.CheckResult = FAIL
+			courseCheckResult.FailReasons = append(courseCheckResult.FailReasons, &dto.Reason{
+				CourseDesId:   dt[0],
+				CourseDesName: s.dbConfig.GetCourseConfig(dt[0]).CourseName,
 				ConditionType:  1,
 			})
 
 			return false
 		}
 		return true
-	} else if dt[1] == "2" {
+	} else if dt[1] == HT {
 
 		if !CheckContain(results, dt[0]) || !isSuccess(results, dt[0], 2) {
-			subjectCheckResult.CheckResult = FAIL
-			subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
-				SubjectDesId:   dt[0],
-				SubjectDesName: s.dbConfig.GetSubjectConfig(dt[0]).SubjectName,
+			courseCheckResult.CheckResult = FAIL
+			courseCheckResult.FailReasons = append(courseCheckResult.FailReasons, &dto.Reason{
+				CourseDesId:   dt[0],
+				CourseDesName: s.dbConfig.GetCourseConfig(dt[0]).CourseName,
 				ConditionType:  2,
 			})
 
@@ -176,10 +179,10 @@ func (s *registerCourseCheckServiceImp) CheckCondition(courseId string, courseNa
 		return true
 	} else {
 		if !slices.Contains(courseRegisterList, dt[0]) && !isSuccess(results, dt[0], 2) {
-			subjectCheckResult.CheckResult = FAIL
-			subjectCheckResult.FailReasons = append(subjectCheckResult.FailReasons, &dto.Reason{
-				SubjectDesId:   dt[0],
-				SubjectDesName: s.dbConfig.GetSubjectConfig(dt[0]).SubjectName,
+			courseCheckResult.CheckResult = FAIL
+			courseCheckResult.FailReasons = append(courseCheckResult.FailReasons, &dto.Reason{
+				CourseDesId:   dt[0],
+				CourseDesName: s.dbConfig.GetCourseConfig(dt[0]).CourseName,
 				ConditionType:  3,
 			})
 			return false
@@ -189,11 +192,11 @@ func (s *registerCourseCheckServiceImp) CheckCondition(courseId string, courseNa
 
 }
 
-// check list course result contains a subject or not
+// check list course result contains a course or not
 
-func CheckContain(courseResults []client.CourseResult, subjectId string) bool {
+func CheckContain(courseResults []client.CourseResult, courseId string) bool {
 	for _, courseResult := range courseResults {
-		if courseResult.CourseId == subjectId {
+		if courseResult.CourseId == courseId {
 			return true
 		}
 	}

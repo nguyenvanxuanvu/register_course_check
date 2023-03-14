@@ -6,8 +6,8 @@ import (
 )
 
 type ConfigRepository interface {
-	GetSubjectConfigs() ([]*dto.SubjectConfig, error)
-	GetSubjectConditionConfigs() (map[string]*dto.SubjectConditionConfig, error)
+	GetCourseConfigs() ([]*dto.CourseConfig, error)
+	GetCourseConditionConfigs() (map[string]*dto.CourseConditionConfig, error)
 	
 }
 

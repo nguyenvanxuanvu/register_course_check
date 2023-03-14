@@ -14,48 +14,48 @@ func NewConfigRepository(db *sqlx.DB) ConfigRepository {
 	return &configRepository{db: db}
 }
 
-const SUBJECT_TABLE = "subject"
-const SELECT_SUBJECT_CONFIG = "SELECT `id`,`subject_name`,`num_credits`,`faculty` FROM `" + SUBJECT_TABLE + "`"
+const COURSE_TABLE = "course"
+const SELECT_COURSE_CONFIG = "SELECT `id`,`course_name`,`num_credits`,`faculty` FROM `" + COURSE_TABLE + "`"
 
-func (r *configRepository) GetSubjectConfigs() ([]*dto.SubjectConfig, error) {
-	rows, err := r.db.Queryx(SELECT_SUBJECT_CONFIG)
+func (r *configRepository) GetCourseConfigs() ([]*dto.CourseConfig, error) {
+	rows, err := r.db.Queryx(SELECT_COURSE_CONFIG)
 	if err != nil {
 		return nil, err
 	}
-	subjectConfigs := []*dto.SubjectConfig{}
+	courseConfigs := []*dto.CourseConfig{}
 	
 	for rows.Next() {
-		subjectConfig := &dto.SubjectConfig{}
-		err = rows.StructScan(subjectConfig)
+		courseConfig := &dto.CourseConfig{}
+		err = rows.StructScan(courseConfig)
 		if err != nil {
 			return nil, err
 		}
-		subjectConfigs = append(subjectConfigs, subjectConfig)
+		courseConfigs = append(courseConfigs, courseConfig)
 	}
-	return subjectConfigs, nil
+	return courseConfigs, nil
 }
 
 
 
-const SUBJECT_CONDITION_TABLE = "subject_condition"
-const SELECT_SUBJECT_CONDITION_CONFIG = "SELECT `subject_id`,`condition` FROM `" + SUBJECT_CONDITION_TABLE + "`"
+const COURSE_CONDITION_TABLE = "course_condition"
+const SELECT_COURSE_CONDITION_CONFIG = "SELECT `course_id`,`condition` FROM `" + COURSE_CONDITION_TABLE + "`"
 
-func (r *configRepository) GetSubjectConditionConfigs() (map[string]*dto.SubjectConditionConfig, error) {
-	rows, err := r.db.Queryx(SELECT_SUBJECT_CONDITION_CONFIG)
+func (r *configRepository) GetCourseConditionConfigs() (map[string]*dto.CourseConditionConfig, error) {
+	rows, err := r.db.Queryx(SELECT_COURSE_CONDITION_CONFIG)
 	if err != nil {
 		return nil, err
 	}
-	subjectConditionConfigs := map[string]*dto.SubjectConditionConfig{}
+	courseConditionConfigs := map[string]*dto.CourseConditionConfig{}
 	for rows.Next() {
-		conditionConfig := &dto.SubjectConditionConfig{}
+		conditionConfig := &dto.CourseConditionConfig{}
 		err = rows.StructScan(conditionConfig)
 		if err != nil {
 			return nil, err
 		}
-		subjectConditionConfigs[conditionConfig.SubjectId] = conditionConfig
+		courseConditionConfigs[conditionConfig.CourseId] = conditionConfig
 	}
 	
-	return subjectConditionConfigs, nil
+	return courseConditionConfigs, nil
 }
 
 

@@ -4,20 +4,20 @@ package dto
 type CheckResponseDTO struct {
 	Status  string `json:"status"`
 	StudentStatus string `json:"studentStatus"`
-	SubjectChecks []*SubjectCheck `json:"subjectChecks"`
+	CourseChecks []*CourseCheck `json:"courseChecks"`
 	CheckMinCreditResult string `json:"checkMinCreditResult"`
 	CheckMaxCreditResult string `json:"checkMaxCreditResult"`
 }
 
-type SubjectCheck struct {
-	SubjectId string  `json:"subjectId"`
-	SubjectName string  `json:"subjectName"`
+type CourseCheck struct {
+	CourseId string  `json:"courseId"`
+	CourseName string  `json:"courseName"`
 	CheckResult string `json:"checkResult"`
 	FailReasons []*Reason `json:"failReasons"`
 }
 
 type Reason struct {
-	SubjectDesId string `json:"subjectDesId"`
-	SubjectDesName string `json:"subjectDesName"`
+	CourseDesId string `json:"courseDesId"`
+	CourseDesName string `json:"courseDesName"`
 	ConditionType int `json:"conditionType"`         //  1: TQ   2: HT   3:SH
 }

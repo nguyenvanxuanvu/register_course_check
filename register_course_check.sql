@@ -14,9 +14,9 @@ CREATE TABLE `min_max_credit` (
 
 
 
-CREATE TABLE `subject` (
+CREATE TABLE `course` (
   `id` varchar(45) NOT NULL,
-  `subject_name` varchar(45) NOT NULL,
+  `course_name` varchar(45) NOT NULL,
   `num_credits` int NOT NULL,
   `faculty` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -24,13 +24,13 @@ CREATE TABLE `subject` (
 
 
 
-CREATE TABLE `subject_condition` (
+CREATE TABLE `course_condition` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `subject_id` varchar(45) NOT NULL,
+  `course_id` varchar(45) NOT NULL,
   `condition` json NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `subject_id_fk_idx` (`subject_id`),
-  CONSTRAINT `subject_id_fk` FOREIGN KEY (`subject_id`) REFERENCES `subject` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `course_id_fk_idx` (`course_id`),
+  CONSTRAINT `course_id_fk` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -44,8 +44,8 @@ VALUES
 
 
 
-INSERT INTO `register_course_check`.`subject`
-(`id`,`subject_name`,`num_credits`,`faculty`)
+INSERT INTO `register_course_check`.`course`
+(`id`,`course_name`,`num_credits`,`faculty`)
 VALUES
 ('CO1', 'AAA', '3', 'MT'),
 ('CO2', 'BBB', '4', 'HH'),
@@ -59,8 +59,8 @@ VALUES
 
 
 
-INSERT INTO `register_course_check`.`subject_condition`
-(`id`,`subject_id`,`condition`)
+INSERT INTO `register_course_check`.`course_condition`
+(`id`,`course_id`,`condition`)
 VALUES
 ('1', 'CO1', '{\"data\": \"OR\", \"left\": {\"data\": \"CO2-1\"}, \"right\": {\"data\": \"AND\", \"left\": {\"data\": \"AND\", \"left\": {\"data\": \"CO5-1\"}, \"right\": {\"data\": \"CO6-2\"}}, \"right\": {\"data\": \"CO4-3\"}}}'),
 ('5', 'CO2', '{\"data\": \"CO3-1\"}'),

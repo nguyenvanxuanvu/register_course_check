@@ -6,44 +6,44 @@ import (
 )
 
 type dbConfigObj struct {
-	subjectConfigs      map[string]*dto.SubjectConfig
+	courseConfigs      map[string]*dto.CourseConfig
 }
 
 func NewDBConfig(repo repository.ConfigRepository) (DBConfig, error) {
 	
-	subjectConfigs, err := repo.GetSubjectConfigs()
+	courseConfigs, err := repo.GetCourseConfigs()
 	if err != nil {
 		return nil, err
 	}
 
-	subjectConditionConfigs, err := repo.GetSubjectConditionConfigs()
+	courseConditionConfigs, err := repo.GetCourseConditionConfigs()
 	if err != nil {
 		return nil, err
 	}
 	
 
 
-	subjectConfigMap := make(map[string]*dto.SubjectConfig)
+	courseConfigMap := make(map[string]*dto.CourseConfig)
 
-	for _, subjectConfig := range subjectConfigs {
+	for _, courseConfig := range courseConfigs {
 		
-		subjectConfig.SubjectConditionConfig = &dto.SubjectConditionConfig{}
-		condition := subjectConditionConfigs[subjectConfig.Id]
-		subjectConfig.SubjectConditionConfig = condition
-		subjectConfigMap[subjectConfig.Id] = subjectConfig
+		courseConfig.CourseConditionConfig = &dto.CourseConditionConfig{}
+		condition := courseConditionConfigs[courseConfig.Id]
+		courseConfig.CourseConditionConfig = condition
+		courseConfigMap[courseConfig.Id] = courseConfig
 	}
 
 	
 	return &dbConfigObj{
-		subjectConfigMap,
+		courseConfigMap,
 		
 	}, nil
 
 }
 
 
-func (c *dbConfigObj) GetSubjectConfig(subjectId string) (*dto.SubjectConfig) {
-	return c.subjectConfigs[subjectId]
+func (c *dbConfigObj) GetCourseConfig(courseId string) (*dto.CourseConfig) {
+	return c.courseConfigs[courseId]
 }
 
 

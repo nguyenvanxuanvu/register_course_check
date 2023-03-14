@@ -5,28 +5,28 @@ import (
 	"encoding/json"
 )
 
-type SubjectConfig struct {
+type CourseConfig struct {
 	Id                     string `db:"id"`
-	SubjectName            string `db:"subject_name"`
+	CourseName            string `db:"course_name"`
 	NumCredits             int    `db:"num_credits"`
 	Faculty                string `db:"faculty"`
-	SubjectConditionConfig *SubjectConditionConfig
+	CourseConditionConfig *CourseConditionConfig
 }
 
-type SubjectConditionConfig struct {
-	SubjectId string           `db:"subject_id"`
-	Condition SubjectCondition `db:"condition"` // json type - object struct
+type CourseConditionConfig struct {
+	CourseId string           `db:"course_id"`
+	Condition CourseCondition `db:"condition"` // json type - object struct
 }
 
 
 
 
-// subject condition type json
-// subjectId - Data has the format like "CO2-number"   number: 1: Tien quyet   2: Hoc truoc  3: Song hanh
+// course condition type json
+// courseId - Data has the format like "CO2-number"   number: 1: Tien quyet   2: Hoc truoc  3: Song hanh
 
-type SubjectCondition struct {
-	Left  *SubjectCondition  `db:"left,omitempty"`
-	Right *SubjectCondition  `db:"right,omitempty"`
+type CourseCondition struct {
+	Left  *CourseCondition  `db:"left,omitempty"`
+	Right *CourseCondition  `db:"right,omitempty"`
 	Data  string 			 `db:"data,omitempty"`
 }
 
@@ -39,12 +39,12 @@ type SubjectCondition struct {
 
 
 // Value implements the driver.Valuer interface
-func (f SubjectCondition) Value() (driver.Value, error) {
+func (f CourseCondition) Value() (driver.Value, error) {
 	return json.Marshal(f)
 }
 
 // Scan implements the sql.Scanner interface
-func (f *SubjectCondition) Scan(value interface{}) error {
+func (f *CourseCondition) Scan(value interface{}) error {
 	var data = []byte(value.([]uint8))
 	return json.Unmarshal(data, &f)
 }

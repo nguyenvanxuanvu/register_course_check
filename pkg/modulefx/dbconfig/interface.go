@@ -8,5 +8,5 @@ import (
 )
 
 type DBConfig interface {
-	GetSubjectConfig(subjectId string) (*dto.SubjectConfig)
+	GetCourseConfig(courseId string) (*dto.CourseConfig)
 }
