@@ -7,11 +7,9 @@ import (
 	"time"
 
 	"register_course_check/pkg/modulefx/client"
-	"register_course_check/redis"
+	"register_course_check/redis/redisconfig"
 
 	"github.com/spf13/viper"
-
-	"go.uber.org/fx"
 )
 
 
@@ -24,14 +22,12 @@ type CacheService interface {
 
 
 type cacheService struct {
-	rdb redis.Cache
+	rdb redisconfig.Cache
 }
 
-func NewCacheService(rdb redis.Cache) CacheService {
+func NewCacheService(rdb redisconfig.Cache) CacheService {
 	return &cacheService{rdb: rdb}
 }
-
-var Module = fx.Provide(NewCacheService)
 
 
 func (c cacheService) GetStudyResult(ctx context.Context, studentId int) ([]client.CourseResult, error) {
@@ -60,8 +56,11 @@ func (c cacheService) TrySetStudyResult(ctx context.Context, studentId int, stud
 
 	cacheKey := GetStudyResultCacheKey(studentId)
 	ttl := viper.GetInt("student-info-ttl-ms")
-	
-	success, err := c.rdb.SetNX(ctx, cacheKey, studyResult, time.Millisecond*time.Duration(ttl)).Result()
+	data, err := json.Marshal(studyResult)
+	if err != nil {
+		return false, nil
+	}
+	success, err := c.rdb.SetNX(ctx, cacheKey, data, time.Millisecond*time.Duration(ttl)).Result()
 	if err != nil {
 		return false, err
 	}

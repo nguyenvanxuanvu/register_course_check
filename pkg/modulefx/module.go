@@ -7,6 +7,8 @@ import (
 	"register_course_check/pkg/modulefx/repository"
 	"register_course_check/pkg/modulefx/router"
 	"register_course_check/pkg/modulefx/service"
+	"register_course_check/pkg/modulefx/cache"
+
 
 	"go.uber.org/fx"
 )
@@ -18,4 +20,5 @@ var Module = fx.Options(
 	dbconfig.Module,
 	service.Module,
 	client.Module,
+	cache.Module,
 )

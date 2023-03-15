@@ -1,16 +1,16 @@
 package main
 
 import (
-
 	"log"
 	"os"
-	"go.uber.org/fx"
+	"register_course_check/config"
 	"register_course_check/httpserver"
 	"register_course_check/mysql"
-	"register_course_check/config"
+	"register_course_check/redis"
+
+	"go.uber.org/fx"
 
 	"register_course_check/pkg/modulefx"
-
 )
 
 var GitCommit string
@@ -28,8 +28,7 @@ func main() {
 		httpserver.Module,
 		mysql.Module,
 		modulefx.Module,
-
+		redis.Module,
 	)
 	app.Run()
 }
-
