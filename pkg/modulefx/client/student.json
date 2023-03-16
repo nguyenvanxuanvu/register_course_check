@@ -1,5 +1,29 @@
 {
+    
     "students": [
+    {
+        "studentId":       1914698,
+        "studentName":     "Student, Phuc",
+        "falcuty":         "KHMT",
+        "academicProgram": "DT",
+        "studyResults": [
+            {
+                "courseId":   "ALG",
+                "courseName": "Algebra",
+                "result":     1
+            },
+            {
+                "courseId":   "ENGL",
+                "courseName": "English",
+                "result":     1
+            },
+            {
+                "courseId":   "CHM",
+                "courseName": "Chemistry",
+                "result":     1
+            }
+        ]
+    },
     {
       "studentId":       1915982,
       "studentName":     "Nguyễn Văn Xuân Vũ",
