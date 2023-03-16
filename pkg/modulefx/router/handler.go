@@ -3,13 +3,13 @@ package router
 import (
 	"context"
 
-	"register_course_check/pkg/modulefx/controller"
-	db_config "register_course_check/pkg/modulefx/dbconfig"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/controller"
+	db_config "github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/dbconfig"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"net/http"
-	"register_course_check/pkg/dto"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/dto"
 )
 
 
@@ -26,6 +26,8 @@ func registerHandler(r gin.IRoutes, controller controller.Controller, dbConfig d
 
 	r.POST("/register_course/check",
 		getControllerEndPoint("Check", getCheckRequestDTO, controller.Check, CONTENT_JSON))
+	r.POST("/register_course/suggestion",
+		getControllerEndPoint("Suggestion", getSuggestionRequestDTO, controller.Suggestion, CONTENT_JSON))
 }
 
 
@@ -67,4 +69,15 @@ func getCheckRequestDTO(ctx *gin.Context) (*dto.CheckRequestDTO, error) {
 	}
 	
 	return &checkRequestDTO, nil
+}
+
+func getSuggestionRequestDTO(ctx *gin.Context) (*dto.SuggestionRequestDTO, error) {
+	
+	suggestionRequestDTO := dto.SuggestionRequestDTO{}
+	
+	if err := ctx.BindJSON(&suggestionRequestDTO); err != nil {
+		return nil, err
+	}
+	
+	return &suggestionRequestDTO, nil
 }

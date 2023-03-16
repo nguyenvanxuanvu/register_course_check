@@ -7,7 +7,7 @@ import (
 
 	redisLib "github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
-	"register_course_check/redis/redisconfig"
+	"github.com/nguyenvanxuanvu/register_course_check/redis/redisconfig"
 	"go.uber.org/fx"
 )
 

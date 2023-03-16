@@ -21,3 +21,16 @@ type Reason struct {
 	CourseDesName string `json:"courseDesName"`
 	ConditionType int `json:"conditionType"`         //  1: TQ   2: HT   3:SH
 }
+
+
+type SuggestionResponseDTO struct {
+	Courses []CourseSuggestion `json:"courses"`
+	MinCredit int `json:"minCredit"`
+	MaxCredit int `json:"maxCredit"`
+}
+
+type CourseSuggestion struct {
+	CourseId string  `json:"courseId"`
+	CourseName string  `json:"courseName"` 
+	Type int `json:"type"`        // 1: Chua dat   2: Chuong trinh hoc
+}

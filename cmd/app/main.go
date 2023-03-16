@@ -3,14 +3,14 @@ package main
 import (
 	"log"
 	"os"
-	"register_course_check/config"
-	"register_course_check/httpserver"
-	"register_course_check/mysql"
-	"register_course_check/redis"
+	"github.com/nguyenvanxuanvu/register_course_check/config"
+	"github.com/nguyenvanxuanvu/register_course_check/httpserver"
+	"github.com/nguyenvanxuanvu/register_course_check/mysql"
+	"github.com/nguyenvanxuanvu/register_course_check/redis"
 
 	"go.uber.org/fx"
 
-	"register_course_check/pkg/modulefx"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx"
 )
 
 var GitCommit string

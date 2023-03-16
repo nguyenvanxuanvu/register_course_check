@@ -1,4 +1,4 @@
-module register_course_check
+module github.com/nguyenvanxuanvu/register_course_check
 
 go 1.18
 

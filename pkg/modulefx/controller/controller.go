@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"register_course_check/pkg/modulefx/service"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/service"
 )
 
 type controllerImpl struct {
