@@ -8,11 +8,6 @@
         "academicProgram": "DT",
         "studyResults": [
             {
-                "courseId":   "ALG",
-                "courseName": "Algebra",
-                "result":     1
-            },
-            {
                 "courseId":   "ENGL",
                 "courseName": "English",
                 "result":     1

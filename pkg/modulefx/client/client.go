@@ -17,7 +17,7 @@ func NewClient() Client {
 func (c *client) GetStudentStatus(studentId int) int {
 	// Get student status from core service
 	//http.Get("")
-	if studentId == 1915982 || studentId == 1915983 {
+	if studentId == 1915982 || studentId == 1915983 || studentId == 1914698 {
 		return 1
 	} else {
 		return 0
