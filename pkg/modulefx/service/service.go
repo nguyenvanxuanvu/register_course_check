@@ -1,10 +1,10 @@
 package service
 
 import (
-	"register_course_check/pkg/modulefx/cache"
-	"register_course_check/pkg/modulefx/client"
-	db_config "register_course_check/pkg/modulefx/dbconfig"
-	"register_course_check/pkg/modulefx/repository"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/cache"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/client"
+	db_config "github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/dbconfig"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/repository"
 )
 
 type registerCourseCheckServiceImp struct {

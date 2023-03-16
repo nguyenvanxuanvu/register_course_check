@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"register_course_check/pkg/modulefx/client"
-	"register_course_check/redis/redisconfig"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/client"
+	"github.com/nguyenvanxuanvu/register_course_check/redis/redisconfig"
 
 	"github.com/spf13/viper"
 )

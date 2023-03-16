@@ -1,7 +1,7 @@
 package dbconfig
 
 import (
-	"register_course_check/pkg/dto"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/dto"
 	
 
 	

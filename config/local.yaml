@@ -16,7 +16,7 @@ redis:
   addresses: 127.0.0.1:6379
   
 cache:
-  prefix: "lc:student_result"
+  prefix: "lc"
   student-info-ttl-ms: 43200000 # 0.5 day
 
 mysql:

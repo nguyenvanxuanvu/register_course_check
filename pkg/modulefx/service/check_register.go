@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"errors"
-	"register_course_check/pkg/common"
-	"register_course_check/pkg/dto"
-	"register_course_check/pkg/modulefx/client"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/common"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/dto"
+	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/client"
 	"strings"
 
 	"golang.org/x/exp/slices"
@@ -145,6 +145,10 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 		CheckMaxCreditResult: checkMaxCreditResult,
 	}, nil
 }
+
+
+
+
 
 // recursion of check condition
 // return true if pass condition
