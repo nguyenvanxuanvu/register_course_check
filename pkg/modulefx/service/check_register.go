@@ -48,7 +48,7 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	num_credits := 0
 	for _, course := range req.RegisterCourses {
 		if slices.Contains(courseRegisterList, course.CourseId) {
-			return nil, errors.New(common.DUPLICATE_COURSE_REGISTER)
+			return nil, errors.New(common.DUPLICATE_COURSE_REGISTER + ": " + course.CourseId)
 		} else {
 			courseRegisterList = append(courseRegisterList, course.CourseId)
 			if s.dbConfig.GetCourseConfig(course.CourseId) == nil {

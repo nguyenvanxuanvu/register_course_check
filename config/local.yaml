@@ -22,7 +22,7 @@ cache:
 mysql:
   url: 127.0.0.1:3306
   username: root
-  password: 123456
+  password: Bindeptrai231
   schema: register_course_check
 
 
