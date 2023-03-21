@@ -13,6 +13,21 @@
                 "result":     1
             },
             {
+                "courseId":   "GER",
+                "courseName": "German",
+                "result":     2
+            },
+            {
+                "courseId":   "SPAN",
+                "courseName": "Spanish",
+                "result":     3
+            },
+            {
+                "courseId":   "BAND",
+                "courseName": "Band",
+                "result":     1
+            },
+            {
                 "courseId":   "CHM",
                 "courseName": "Chemistry",
                 "result":     1
