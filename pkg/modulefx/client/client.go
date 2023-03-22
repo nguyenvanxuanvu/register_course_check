@@ -19,6 +19,8 @@ func (c *client) GetStudentStatus(studentId int) int {
 	//http.Get("")
 	if studentId == 1915982 || studentId == 1915983 || studentId == 1914698 {
 		return 1
+	} else if studentId == 1234567{
+		return 2 
 	} else {
 		return 0
 	}

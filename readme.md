@@ -17,14 +17,23 @@ The backend for allow user send request check course register
 ```plantuml
 autonumber
 participant "Unitime UI" as ui
-participant "RegisterCourseCheck Service" as service
-participant "Database" as dtb
+participant "Check Service" as service
+participant "Redis" as redis
+participant "Core Service" as core
+
 
 
 ui -> service: check register
-service -> service: check student status
-service -> dtb: query student status
-dtb --> service: student status response
+alt student status exist in redis
+service -> redis: get student status
+redis --> service: response
+
+else not exist
+service -> core: get student status
+core --> service: response
+end
+
+
 
 
 
@@ -57,17 +66,9 @@ service --> ui: response
 
 
 ## Database 
-### Student
-| Field         | Type         | Description              | Example                               |
-|---------------|--------------|--------------------------|---------------------------------------|
-| id (PK)      | int | MSSV                      | 1915982                            |
-| name         | varchar(45)       | Tên                   | Nguyen Van Xuan Vu   
-| class         | varchar(45)       | Lớp                   | MT19KH03
-| academic_year        | int       |  Năm đào tạo                     | 2019                                |
-| education_program        | varchar(45)       |  Chương trình đào tạo                     | DT: Đại trà  CLC: Chất lượng cao
-| student_status         | int       |  Trạng thái của sinh viên                    | 1:  Bình thường  2:  Không được phép đăng ký môn   
 
-### Subject
+
+### course
 | Field           | Type         | Description                            | Example |
 |-----------------|--------------|----------------------------------------|---------|
 | id (PK)       | varchar(45)      |  MSMH                           | CO3001       |
@@ -75,14 +76,14 @@ service --> ui: response
 | num_credits | int      |  Số tín chỉ môn học      | 3    |
 | faculty | varchar(45)      | Khoa     | KHMT    |
 
-### Subject_Condition
+### course_condition
 | Field           | Type    | Description               | Example        |
 |-----------------|---------|---------------------------|----------------|
 | id (PK)      | int | Id            | 1              |
 | subject_id     | varchar(45)    | MSMH     | CO3002 |
 | subject_des_id | varchar(45)    | MSMH của môn điều kiện | CO3001 |
 | condition_type | int    |  Loại điều kiện | 1: Tiên quyết  2:  Học trước   3: Song hành |
-### Result
+### min_max_credit
 | Field           | Type      | Description         | Example             |
 |-----------------|-----------|---------------------|---------------------|
 | id (PK)  | bigint  | Id        | 1                   |

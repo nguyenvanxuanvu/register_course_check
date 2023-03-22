@@ -42,7 +42,7 @@ CREATE TABLE `course_condition` (
 INSERT INTO `register_course_check`.`min_max_credit`
 (`int`,`academic_program`,`semester`,`min_credit`,`max_credit`)
 VALUES
-('1', 'DT', '191', '5', '20');
+('1', 'DT', '191', '14', '21');
 
 
 
@@ -95,7 +95,7 @@ VALUES
 ('30', 'ALG', '{\"data\": \"CALC-3\"}'),
 ('31', 'CALC', '{\"data\": \"ALG-3\"}'),
 ('100', 'COM', '{\"data\":\"OR\",\"left\":{\"data\":\"ENGL-1\"},\"right\":{\"data\":\"OR\",\"left\":{\"data\":\"GER-1\"},\"right\":{\"data\":\"AND\",\"left\":{\"data\":\"SPAN-1\"},\"right\":{\"data\":\"CHIN-1\"}}}}'),
-('101', 'PHAR', '{\"data\":\"AND\",\"left\":{\"data\":\"CHM-1\"},\"right\":{\"data\":\"BIOL-1\"}}'),
+('102', 'PHAR', '{\"data\":\"AND\",\"left\":{\"data\":\"CHM-1\"},\"right\":{\"data\":\"BIOL-1\"}}'),
 ('1', 'CO1', '{\"data\": \"OR\", \"left\": {\"data\": \"CO2-1\"}, \"right\": {\"data\": \"AND\", \"left\": {\"data\": \"AND\", \"left\": {\"data\": \"CO5-1\"}, \"right\": {\"data\": \"CO6-2\"}}, \"right\": {\"data\": \"CO4-3\"}}}'),
 ('5', 'CO2', '{\"data\": \"CO3-1\"}'),
 ('6', 'CO3', '{\"data\": \"AND\", \"left\": {\"data\": \"CO4-1\"}, \"right\": {\"data\": \"CO5-1\"}}'),
