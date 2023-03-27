@@ -26,13 +26,13 @@ func responseWithSuccess[T any](gCtx *gin.Context, response T, contentType strin
 }
 
 
-func responseWithError(gCtx *gin.Context, realsStatus int, err error) {
+func responseWithError(gCtx *gin.Context, realsStatus int, err error, description string) {
 	
 	gCtx.AbortWithStatusJSON(http.StatusOK, ErrorResponse{
 		Error: ErrorDetails{
 			Code:   realsStatus,
 			Reason: err.Error(),
-			Domain: "register_course_check",
+			Description: description,
 		},
 	})
 }

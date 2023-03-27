@@ -5,8 +5,14 @@ type CheckResponseDTO struct {
 	Status  string `json:"status"`
 	StudentStatus string `json:"studentStatus"`
 	CourseChecks []*CourseCheck `json:"courseChecks"`
-	CheckMinCreditResult string `json:"checkMinCreditResult"`
-	CheckMaxCreditResult string `json:"checkMaxCreditResult"`
+	CheckMinCreditResult MinMaxCredit `json:"checkMinCreditResult"`
+	CheckMaxCreditResult MinMaxCredit `json:"checkMaxCreditResult"`
+}
+
+type MinMaxCredit struct {
+	CheckResult string `json:"checkResult"`
+	CurrentRegister int `json:"currentRegister,omitempty"`
+	Config int `json:"config,omitempty"`
 }
 
 type CourseCheck struct {

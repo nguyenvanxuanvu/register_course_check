@@ -32,9 +32,14 @@ type CourseConditionInfo struct {
 	Type        int    `db:"type,omitempty"`
 }
 
+type CourseList struct {
+	Courses []*CourseInTeachingPlan `db:"course_list,omitempty"`
+}
 
-
-
+type CourseInTeachingPlan struct {
+	CourseId string `db:"courseId,omitempty"`
+	Hint     string `db:"hint,omitempty"`
+}
 
 // Value implements the driver.Valuer interface
 func (f CourseCondition) Value() (driver.Value, error) {

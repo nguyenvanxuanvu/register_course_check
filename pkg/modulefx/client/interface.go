@@ -3,7 +3,7 @@ package client
 
 
 type Client interface {
-	GetStudentStatus(studentId int) int
+	GetStudentInfo(studentId int) *StudentInfo
 	GetStudyResult(studentId int) []CourseResult
 }
 

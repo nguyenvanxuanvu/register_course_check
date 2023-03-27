@@ -14,16 +14,37 @@ func NewClient() Client {
 	return &client{}
 }
 
-func (c *client) GetStudentStatus(studentId int) int {
+func (c *client) GetStudentInfo(studentId int) *StudentInfo {
 	// Get student status from core service
 	//http.Get("")
-	if studentId == 1915982 || studentId == 1915983 || studentId == 1914698 {
-		return 1
-	} else if studentId == 1234567{
-		return 2 
-	} else {
-		return 0
+	jsonFile, err := os.Open("pkg/modulefx/client/student.json")
+	if err != nil {
+		fmt.Println(err)
 	}
+
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var students Students
+
+	json.Unmarshal(byteValue, &students)
+
+	// Get student study result from core service
+
+	for _, student := range students.Students {
+		if student.StudentId == studentId {
+			return &StudentInfo{
+				StudentStatus: student.StudentStatus,
+				AcademicProgram: student.AcademicProgram,
+				Falcuty: student.Falcuty,
+				Speciality: student.Speciality,
+				SemesterOrder: student.SemesterOrder,
+			}
+		}
+	}
+	return nil
+
 }
 
 func (c *client) GetStudyResult(studentId int) []CourseResult {

@@ -43,12 +43,12 @@ func getControllerEndPoint[Req any, Resp any](method string,
 		request, err := getRequestFunc(gCtx)
 		
 		if err != nil {
-			responseWithError(gCtx, http.StatusServiceUnavailable, err)
+			responseWithError(gCtx, http.StatusServiceUnavailable, err, "")
 			return
 		}
 		response, err := controllerFunc(ctx, request)
 		if err != nil {
-			responseWithError(gCtx, http.StatusServiceUnavailable, err)
+			responseWithError(gCtx, http.StatusServiceUnavailable, err, ErrToDescription(err))
 			return
 		}
 		

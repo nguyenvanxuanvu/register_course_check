@@ -3,7 +3,6 @@ package cache
 import (
 	"context"
 	"encoding/json"
-	"strconv"
 	"time"
 
 	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/client"
@@ -16,8 +15,8 @@ import (
 type CacheService interface {
 	GetStudyResult(ctx context.Context, studentId int) ([]client.CourseResult, error)
 	TrySetStudyResult(ctx context.Context, studentId int, studyResult []client.CourseResult) (bool, error)
-	GetStudentStatus(ctx context.Context, studentId int) (int, error)
-	TrySetStudentStatus(ctx context.Context, studentId int, studentStatus int) (bool, error)
+	GetStudentInfo(ctx context.Context, studentId int) (*client.StudentInfo, error)
+	TrySetStudentInfo(ctx context.Context, studentId int, studentInfo *client.StudentInfo) (bool, error)
 }
 
 
@@ -35,13 +34,13 @@ func (c cacheService) GetStudyResult(ctx context.Context, studentId int) ([]clie
 	
 
 	cacheKey := GetStudyResultCacheKey(studentId)
-	studentInfo, err := c.rdb.Get(ctx, cacheKey).Result()
-	if studentInfo == "" || err != nil {
+	studyResult, err := c.rdb.Get(ctx, cacheKey).Result()
+	if studyResult == "" || err != nil {
 		return nil, err
 	}
 	studyResultModel := []client.CourseResult{}
 
-	err = json.Unmarshal([]byte(studentInfo), &studyResultModel)
+	err = json.Unmarshal([]byte(studyResult), &studyResultModel)
 	if err != nil {
 		return nil, err
 	}
@@ -68,38 +67,40 @@ func (c cacheService) TrySetStudyResult(ctx context.Context, studentId int, stud
 	return success, nil
 }
 
-func (c cacheService) GetStudentStatus(ctx context.Context, studentId int) (int, error) {
+func (c cacheService) GetStudentInfo(ctx context.Context, studentId int) (*client.StudentInfo, error) {
 	var err error = nil
 	
 
-	cacheKey := GetStudentStatusCacheKey(studentId)
-	status, err := c.rdb.Get(ctx, cacheKey).Result()
-	if status == "" || err != nil {
-		return -1, err
+	cacheKey := GetStudentInfoCacheKey(studentId)
+	studentInfo, err := c.rdb.Get(ctx, cacheKey).Result()
+	if studentInfo == "" || err != nil {
+		return nil, err
 	}
-	studentStatus, err := strconv.Atoi(status)
+	studentInfoModel := &client.StudentInfo{}
+	err = json.Unmarshal([]byte(studentInfo), &studentInfoModel)
 	if err != nil {
-		return -1, err
+		return nil, err
 	}
-
 	
 
-	
-
-	return studentStatus, nil
+	return studentInfoModel, nil
 }
 
-func (c cacheService) TrySetStudentStatus(ctx context.Context, studentId int, studentStatus int) (bool, error) {
+func (c cacheService) TrySetStudentInfo(ctx context.Context, studentId int, studentInfo *client.StudentInfo) (bool, error) {
 	var err error = nil
 
-	cacheKey := GetStudentStatusCacheKey(studentId)
+	cacheKey := GetStudentInfoCacheKey(studentId)
 	ttl := viper.GetInt("student-info-ttl-ms")
-
-	success, err := c.rdb.SetNX(ctx, cacheKey, studentStatus , time.Millisecond*time.Duration(ttl)).Result()
+	data, err := json.Marshal(studentInfo)
+	if err != nil {
+		return false, nil
+	}
+	success, err := c.rdb.SetNX(ctx, cacheKey, data , time.Millisecond*time.Duration(ttl)).Result()
 	if err != nil {
 		return false, err
 	}
 
 	return success, nil
+
 }
 

@@ -4,8 +4,11 @@
     {
         "studentId":       1914698,
         "studentName":     "Student, Phuc",
+        "studentStatus":   1,
         "falcuty":         "KHMT",
         "academicProgram": "DT",
+        "speciality":      "KHM",
+        "semesterOrder":   3,
         "studyResults": [
             {
                 "courseId":   "ENGL",
@@ -37,8 +40,11 @@
     {
       "studentId":       1915982,
       "studentName":     "Nguyễn Văn Xuân Vũ",
+      "studentStatus":   1,
       "falcuty":         "KHMT",
       "academicProgram": "DT",
+      "speciality":      "KHM",
+      "semesterOrder":   3,
       "studyResults": [
         {
             "courseId":   "ENGL",
@@ -70,8 +76,11 @@
     {
         "studentId":       1915983,
         "studentName":     "Nguyễn Văn Xuân Vũ",
+        "studentStatus":   2,
         "falcuty":         "KHMT",
         "academicProgram": "DT",
+        "speciality":      "KHM",
+        "semesterOrder":   3,
         "studyResults": [
           {
               "courseId":   "CO6",

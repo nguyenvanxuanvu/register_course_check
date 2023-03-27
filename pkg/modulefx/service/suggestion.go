@@ -32,12 +32,38 @@ func (s *registerCourseCheckServiceImp) Suggestion(ctx context.Context, req *dto
 		}
 	}
 
+	var studentInfo *client.StudentInfo
+	studentInfo, _ = s.cacheService.GetStudentInfo(ctx, studentId)
+	if studentInfo == nil {
+		studentInfo = s.client.GetStudentInfo(int(req.StudentId))
+		_ , err := s.cacheService.TrySetStudentInfo(ctx, studentId, studentInfo)
+		if err != nil {
+			return nil, errors.New(common.SET_STUDENT_INFO_FAIL_REDIS)
+		}
+	}
+
+	listCourse := s.repository.GetListCourseOfTeachingPlan(studentInfo.Falcuty, studentInfo.Speciality, studentInfo.AcademicProgram, studentInfo.SemesterOrder)
+
+	for _, course := range listCourse{
+		courseModel := dto.CourseSuggestion{
+			Type: 2,
+		}
+		if cf := s.dbConfig.GetCourseConfig(course.CourseId); cf != nil {
+			courseModel.CourseId = course.CourseId
+			courseModel.CourseName = cf.CourseName
+		} else {
+			courseModel.CourseId = "HINT"
+			courseModel.CourseName = course.Hint
+		}
+		
+		courseSuggestions = append(courseSuggestions, courseModel)
+
+	}
 	
-	
-	
+	minCredit, maxCredit := s.repository.GetMinMaxCredit(studentInfo.AcademicProgram, int(req.Semester))
 	return &dto.SuggestionResponseDTO{
 		Courses: courseSuggestions,
-		MinCredit: 2,
-		MaxCredit: 3,
+		MinCredit: minCredit,
+		MaxCredit: maxCredit,
 	}, nil
 }

@@ -26,12 +26,21 @@ const NOT_PERMIT_REGISTER_STUDENT = 2
 func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.CheckRequestDTO) (*dto.CheckResponseDTO, error) {
 	// check student status
 	studentId := int(req.StudentId)
-	studentStatus, _ := s.cacheService.GetStudentStatus(ctx, studentId)
+	studentInfo, _ := s.cacheService.GetStudentInfo(ctx, studentId)
+	studentStatus := -1
+	if studentInfo != nil {
+		studentStatus = studentInfo.StudentStatus
+	}
+
 	if studentStatus == -1 {
-		studentStatus = s.client.GetStudentStatus(studentId)
-		_, err := s.cacheService.TrySetStudentStatus(ctx, studentId, studentStatus)
+		studentInfo = s.client.GetStudentInfo(studentId)
+		if studentInfo == nil {
+			return nil, errors.New(common.NOT_FOUND_STUDENT_STATUS)
+		}
+		studentStatus = studentInfo.StudentStatus
+		_, err := s.cacheService.TrySetStudentInfo(ctx, studentId, studentInfo)
 		if err != nil {
-			return nil, errors.New(common.SET_STUDENT_STATUS_FAIL_REDIS)
+			return nil, errors.New(common.SET_STUDENT_INFO_FAIL_REDIS)
 		}
 	}
 
@@ -103,8 +112,12 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 
 	// check min credit
 
-	checkMinCreditResult := PASS
-	checkMaxCreditResult := PASS
+	checkMinCreditResult := dto.MinMaxCredit{
+		CheckResult: PASS,
+	}
+	checkMaxCreditResult := dto.MinMaxCredit{
+		CheckResult: PASS,
+	}
 	minCreditsConfig, maxCreditsConfig := s.repository.GetMinMaxCredit(req.AcademicProgram, int(req.Semester))
 
 	if minCreditsConfig < 0 {
@@ -115,11 +128,15 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	}
 
 	if num_credits < minCreditsConfig {
-		checkMinCreditResult = FAIL
+		checkMinCreditResult.CheckResult = FAIL
+		checkMinCreditResult.CurrentRegister = num_credits
+		checkMinCreditResult.Config = minCreditsConfig
 	}
 
 	if num_credits > maxCreditsConfig {
-		checkMaxCreditResult = FAIL
+		checkMaxCreditResult.CheckResult = FAIL
+		checkMaxCreditResult.CurrentRegister = num_credits
+		checkMaxCreditResult.Config = maxCreditsConfig
 	}
 
 	if minCreditsConfig > maxCreditsConfig {
@@ -127,7 +144,7 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	}
 
 	status := PASS
-	if !(len(courseCheckResults) == 0 && checkMinCreditResult == PASS && checkMaxCreditResult == PASS) {
+	if !(len(courseCheckResults) == 0 && checkMinCreditResult.CheckResult == PASS && checkMaxCreditResult.CheckResult == PASS) {
 		status = FAIL
 	}
 

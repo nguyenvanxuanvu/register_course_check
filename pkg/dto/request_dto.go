@@ -15,7 +15,6 @@ type Course struct {
 
 type SuggestionRequestDTO struct {
 	StudentId uint64 `json:"studentId"`
-	AcademicProgram string `json:"academicProgram"`
 	Semester uint64	`json:"semester"`
 }
 
