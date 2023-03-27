@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 	"errors"
+
 	"github.com/nguyenvanxuanvu/register_course_check/pkg/common"
 	"github.com/nguyenvanxuanvu/register_course_check/pkg/dto"
 	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/client"
-	"strings"
 
 	"golang.org/x/exp/slices"
 )
@@ -15,32 +15,34 @@ const NOT_PERMIT_REGISTER_COURSE = "NOT_PERMIT_REGISTER_COURSE"
 const NORMAL_STATUS_STUDENT = "NORMAL"
 const FAIL = "FAIL"
 const PASS = "PASS"
-const AND  = "AND"
-const TQ = "1"
-const HT = "2"
+const AND = "AND"
+const TQ = 1
+const HT = 2
+const SH = 3
+
+const NORMAL_STATUS = 1
+const NOT_PERMIT_REGISTER_STUDENT = 2
 
 func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.CheckRequestDTO) (*dto.CheckResponseDTO, error) {
-
 	// check student status
 	studentId := int(req.StudentId)
 	studentStatus, _ := s.cacheService.GetStudentStatus(ctx, studentId)
 	if studentStatus == -1 {
 		studentStatus = s.client.GetStudentStatus(studentId)
-		_ , err := s.cacheService.TrySetStudentStatus(ctx, studentId, studentStatus)
+		_, err := s.cacheService.TrySetStudentStatus(ctx, studentId, studentStatus)
 		if err != nil {
 			return nil, errors.New(common.SET_STUDENT_STATUS_FAIL_REDIS)
 		}
 	}
-	
 
-	if studentStatus == 2 { // not permit to register student
+	if studentStatus == NOT_PERMIT_REGISTER_STUDENT { // not permit to register student
 		return &dto.CheckResponseDTO{
 			Status:        FAIL,
 			StudentStatus: NOT_PERMIT_REGISTER_COURSE,
 		}, nil
 	}
 
-	if studentStatus != 1 {
+	if studentStatus != NORMAL_STATUS {
 		return nil, errors.New(common.NOT_FOUND_STUDENT_STATUS)
 	}
 
@@ -71,30 +73,26 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 		}
 	}
 
-	
-
-	if len(courseNeedChecks) > 0{
+	if len(courseNeedChecks) > 0 {
 		var listStudyResult []client.CourseResult
 		listStudyResult, _ = s.cacheService.GetStudyResult(ctx, studentId)
 		if listStudyResult == nil {
 			listStudyResult = s.client.GetStudyResult(int(req.StudentId))
-			_ , err := s.cacheService.TrySetStudyResult(ctx, studentId, listStudyResult)
+			_, err := s.cacheService.TrySetStudyResult(ctx, studentId, listStudyResult)
 			if err != nil {
 				return nil, errors.New(common.SET_STUDY_RESULT_FAIL_REDIS)
 			}
 		}
-		
 
 		for _, courseId := range courseNeedChecks {
 			condition := s.dbConfig.GetCourseConfig(courseId).CourseConditionConfig
 
-
 			courseCheckResult := &dto.CourseCheck{
-				CourseId:   courseId,
-				CourseName: s.dbConfig.GetCourseConfig(courseId).CourseName,
+				CourseId:    courseId,
+				CourseName:  s.dbConfig.GetCourseConfig(courseId).CourseName,
 				CheckResult: PASS,
 			}
-			if !s.CheckConditionRecursion(courseId, courseCheckResult.CourseName, courseCheckResult, &condition.Condition, listStudyResult, courseRegisterList) {
+			if !s.CheckConditionRecursion(courseId, courseCheckResult.CourseName, courseCheckResult, condition.Condition, listStudyResult, courseRegisterList) {
 				if courseCheckResult.CheckResult != PASS {
 					courseCheckResults = append(courseCheckResults, courseCheckResult)
 				}
@@ -102,10 +100,6 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 
 		}
 	}
-
-	
-
-	
 
 	// check min credit
 
@@ -146,30 +140,37 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	}, nil
 }
 
-
-
-
-
 // recursion of check condition
 // return true if pass condition
 
 func (s *registerCourseCheckServiceImp) CheckConditionRecursion(courseId string, courseName string, courseCheckResult *dto.CourseCheck, c *dto.CourseCondition, results []client.CourseResult, courseRegisterList []string) bool {
-	if c.Left == nil && c.Right == nil {
-		if s.CheckCondition(courseId, courseName, courseCheckResult, c.Data, results, courseRegisterList) {
+	if c.Op == "" {
+		if s.CheckCondition(courseId, courseName, courseCheckResult, c.Course, results, courseRegisterList) {
 			return true
 		} else {
 			return false
 		}
 	} else {
-		leftResult := s.CheckConditionRecursion(courseId, courseName, courseCheckResult, c.Left, results, courseRegisterList)
-		rightResult := s.CheckConditionRecursion(courseId, courseName, courseCheckResult, c.Right, results, courseRegisterList)
-		if c.Data == AND {
+		if c.Op == AND {
+			var listCheck []bool
+			for _, obj := range c.Leaves {
+				checkResult := s.CheckConditionRecursion(courseId, courseName, courseCheckResult, obj, results, courseRegisterList)
+				listCheck = append(listCheck, checkResult)
+			}
 
-			return leftResult && rightResult
-
+			var returnBool bool = true
+			for _, each := range listCheck {
+				returnBool = returnBool && each
+			}
+			return returnBool
 		} else {
-
-			return leftResult || rightResult
+			for _, obj := range c.Leaves {
+				checkResult := s.CheckConditionRecursion(courseId, courseName, courseCheckResult, obj, results, courseRegisterList)
+				if checkResult == true {
+					return true
+				}
+			}
+			return false
 		}
 
 	}
@@ -177,42 +178,41 @@ func (s *registerCourseCheckServiceImp) CheckConditionRecursion(courseId string,
 
 // check condition of each object (data)
 // return true if pass condition
-func (s *registerCourseCheckServiceImp) CheckCondition(courseId string, courseName string, courseCheckResult *dto.CourseCheck, data string, results []client.CourseResult, courseRegisterList []string) bool {
+func (s *registerCourseCheckServiceImp) CheckCondition(courseId string, courseName string, courseCheckResult *dto.CourseCheck, data *dto.CourseConditionInfo, results []client.CourseResult, courseRegisterList []string) bool {
 
-	dt := strings.Split(data, "-")
-	if dt[1] == TQ {
+	if data.Type == TQ {
 
-		if !CheckContain(results, dt[0]) || !isSuccess(results, dt[0], 1) {
+		if !CheckContain(results, data.CourseDesId) || !isSuccess(results, data.CourseDesId, TQ) {
 			courseCheckResult.CheckResult = FAIL
 			courseCheckResult.FailReasons = append(courseCheckResult.FailReasons, &dto.Reason{
-				CourseDesId:   dt[0],
-				CourseDesName: s.dbConfig.GetCourseConfig(dt[0]).CourseName,
-				ConditionType:  1,
+				CourseDesId:   data.CourseDesId,
+				CourseDesName: s.dbConfig.GetCourseConfig(data.CourseDesId).CourseName,
+				ConditionType: TQ,
 			})
 
 			return false
 		}
 		return true
-	} else if dt[1] == HT {
+	} else if data.Type == HT {
 
-		if !CheckContain(results, dt[0]) || !isSuccess(results, dt[0], 2) {
+		if !CheckContain(results, data.CourseDesId) || !isSuccess(results, data.CourseDesId, HT) {
 			courseCheckResult.CheckResult = FAIL
 			courseCheckResult.FailReasons = append(courseCheckResult.FailReasons, &dto.Reason{
-				CourseDesId:   dt[0],
-				CourseDesName: s.dbConfig.GetCourseConfig(dt[0]).CourseName,
-				ConditionType:  2,
+				CourseDesId:   data.CourseDesId,
+				CourseDesName: s.dbConfig.GetCourseConfig(data.CourseDesId).CourseName,
+				ConditionType: HT,
 			})
 
 			return false
 		}
 		return true
 	} else {
-		if !slices.Contains(courseRegisterList, dt[0]) && !isSuccess(results, dt[0], 2) {
+		if !slices.Contains(courseRegisterList, data.CourseDesId) && !isSuccess(results, data.CourseDesId, HT) {
 			courseCheckResult.CheckResult = FAIL
 			courseCheckResult.FailReasons = append(courseCheckResult.FailReasons, &dto.Reason{
-				CourseDesId:   dt[0],
-				CourseDesName: s.dbConfig.GetCourseConfig(dt[0]).CourseName,
-				ConditionType:  3,
+				CourseDesId:   data.CourseDesId,
+				CourseDesName: s.dbConfig.GetCourseConfig(data.CourseDesId).CourseName,
+				ConditionType: SH,
 			})
 			return false
 		}
@@ -237,9 +237,9 @@ func CheckContain(courseResults []client.CourseResult, courseId string) bool {
 // return true if success
 
 func isSuccess(courseResults []client.CourseResult, courseId string, theType int) bool {
-	if theType == 1 {
+	if theType == TQ {
 		for _, result := range courseResults {
-			if result.CourseId == courseId && (result.Result == 1 || result.Result == 2){
+			if result.CourseId == courseId && (result.Result == 1 || result.Result == 2) {
 				return true
 			}
 		}

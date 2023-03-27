@@ -23,7 +23,7 @@ func (r *configRepository) GetCourseConfigs() ([]*dto.CourseConfig, error) {
 		return nil, err
 	}
 	courseConfigs := []*dto.CourseConfig{}
-	
+
 	for rows.Next() {
 		courseConfig := &dto.CourseConfig{}
 		err = rows.StructScan(courseConfig)
@@ -34,8 +34,6 @@ func (r *configRepository) GetCourseConfigs() ([]*dto.CourseConfig, error) {
 	}
 	return courseConfigs, nil
 }
-
-
 
 const COURSE_CONDITION_TABLE = "course_condition"
 const SELECT_COURSE_CONDITION_CONFIG = "SELECT `course_id`,`condition` FROM `" + COURSE_CONDITION_TABLE + "`"
@@ -48,19 +46,15 @@ func (r *configRepository) GetCourseConditionConfigs() (map[string]*dto.CourseCo
 	courseConditionConfigs := map[string]*dto.CourseConditionConfig{}
 	for rows.Next() {
 		conditionConfig := &dto.CourseConditionConfig{}
-		err = rows.StructScan(conditionConfig)
+
+		err = rows.StructScan(&conditionConfig)
+
 		if err != nil {
 			return nil, err
 		}
+
 		courseConditionConfigs[conditionConfig.CourseId] = conditionConfig
 	}
-	
+
 	return courseConditionConfigs, nil
 }
-
-
-
-
-
-
-

@@ -41,21 +41,31 @@
       "academicProgram": "DT",
       "studyResults": [
         {
-            "courseId":   "CO1",
-            "courseName": "Công nghệ phần mềm",
-            "result":     1
-        },
-        {
-            "courseId":   "CO4",
-            "courseName": "Lập trình web",
+            "courseId":   "ENGL",
+            "courseName": "English",
             "result":     3
         },
         {
-            "courseId":   "CO3",
-            "courseName": "Lập trình nâng cao",
+            "courseId":   "GER",
+            "courseName": "German",
+            "result":     3
+        },
+        {
+            "courseId":   "SPAN",
+            "courseName": "Spanish",
+            "result":     1
+        },
+        {
+            "courseId":   "BAND",
+            "courseName": "Band",
+            "result":     1
+        },
+        {
+            "courseId":   "CHM",
+            "courseName": "Chemistry",
             "result":     1
         }
-      ]
+    ]
     },
     {
         "studentId":       1915983,

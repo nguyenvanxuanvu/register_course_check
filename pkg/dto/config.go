@@ -6,33 +6,31 @@ import (
 )
 
 type CourseConfig struct {
-	Id                     string `db:"id"`
+	Id                    string `db:"id"`
 	CourseName            string `db:"course_name"`
-	NumCredits             int    `db:"num_credits"`
-	Faculty                string `db:"faculty"`
+	NumCredits            int    `db:"num_credits"`
+	Faculty               string `db:"faculty"`
 	CourseConditionConfig *CourseConditionConfig
 }
 
 type CourseConditionConfig struct {
-	CourseId string           `db:"course_id"`
-	Condition CourseCondition `db:"condition"` // json type - object struct
+	CourseId  string           `db:"course_id"`
+	Condition *CourseCondition `db:"condition"` // json type - object struct
 }
-
-
-
-
-// course condition type json
-// courseId - Data has the format like "CO2-number"   number: 1: Tien quyet   2: Hoc truoc  3: Song hanh
 
 type CourseCondition struct {
-	Left  *CourseCondition  `db:"left,omitempty"`
-	Right *CourseCondition  `db:"right,omitempty"`
-	Data  string 			 `db:"data,omitempty"`
+	Op     string               `db:"op,omitempty"`
+	Course *CourseConditionInfo `db:"course,omitempty"`
+	Leaves []*CourseCondition   `db:"leaves,omitempty"`
 }
 
+// Type
+// 1: Tien quyet   2: Hoc truoc  3: Song hanh
 
-
-
+type CourseConditionInfo struct {
+	CourseDesId string `db:"courseDesId,omitempty"`
+	Type        int    `db:"type,omitempty"`
+}
 
 
 
