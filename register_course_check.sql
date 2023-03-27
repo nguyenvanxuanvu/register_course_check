@@ -77,7 +77,8 @@ VALUES
 ('CO3', 'CCC', '5', 'MT'),
 ('CO4', 'DDD', '3', 'CK'),
 ('CO5', 'New', '2', 'MT'),
-('CO6', 'Test', '3', 'MT');
+('CO6', 'Test', '3', 'MT'),
+('test', 'test', '3', 'demo');
 
 
 
@@ -87,19 +88,17 @@ VALUES
 INSERT INTO `register_course_check`.`course_condition`
 (`id`,`course_id`,`condition`)
 VALUES
-('10', 'C S', '{\"data\": \"ENGL-1\"}'),
-('11', 'ENGR', '{\"data\":\"GER-1\"}'),
-('12', 'PHYS', '{\"data\":\"SPAN-1\"}'),
-('20', 'BIOL', '{\"data\": \"CHM-2\"}'),
-('21', 'MBIO', '{\"data\": \"BIOL-2\"}'),
-('30', 'ALG', '{\"data\": \"CALC-3\"}'),
-('31', 'CALC', '{\"data\": \"ALG-3\"}'),
-('100', 'COM', '{\"data\":\"OR\",\"left\":{\"data\":\"ENGL-1\"},\"right\":{\"data\":\"OR\",\"left\":{\"data\":\"GER-1\"},\"right\":{\"data\":\"AND\",\"left\":{\"data\":\"SPAN-1\"},\"right\":{\"data\":\"CHIN-1\"}}}}'),
-('102', 'PHAR', '{\"data\":\"AND\",\"left\":{\"data\":\"CHM-1\"},\"right\":{\"data\":\"BIOL-1\"}}'),
-('1', 'CO1', '{\"data\": \"OR\", \"left\": {\"data\": \"CO2-1\"}, \"right\": {\"data\": \"AND\", \"left\": {\"data\": \"AND\", \"left\": {\"data\": \"CO5-1\"}, \"right\": {\"data\": \"CO6-2\"}}, \"right\": {\"data\": \"CO4-3\"}}}'),
-('5', 'CO2', '{\"data\": \"CO3-1\"}'),
-('6', 'CO3', '{\"data\": \"AND\", \"left\": {\"data\": \"CO4-1\"}, \"right\": {\"data\": \"CO5-1\"}}'),
-('7', 'CO4', '{\"data\": \"CO2-3\"}');
+('105', 'C S', '{\"course\": {\"type\": 1, \"courseDesId\": \"ENGL\"}}'),
+('106', 'ENGR', '{\"course\": {\"type\": 1, \"courseDesId\": \"GER\"}}'),
+('107', 'PHYS', '{\"course\": {\"type\": 1, \"courseDesId\": \"SPAN\"}}'),
+('108', 'BIOL', '{\"course\": {\"type\": 2, \"courseDesId\": \"CHM\"}}'),
+('109', 'MBIO', '{\"course\": {\"type\": 2, \"courseDesId\": \"BIOL\"}}'),
+('110', 'ALG', '{\"course\": {\"type\": 3, \"courseDesId\": \"CALC\"}}'),
+('111', 'CALC', '{\"course\": {\"type\": 3, \"courseDesId\": \"ALG\"}}'),
+('112', 'COM', '{\"op\": \"OR\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"ENGL\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"GER\"}}, {\"op\": \"AND\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"SPAN\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"CHIN\"}}]}]}'),
+('113', 'PHAR', '{\"op\": \"AND\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"CHM\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"BIOL\"}}]}'),
+('114', 'test', '{\"op\": \"OR\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"ENGL\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"GER\"}}, {\"op\": \"AND\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"SPAN\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"CHIN\"}}]}]}');
+
 
 
 
