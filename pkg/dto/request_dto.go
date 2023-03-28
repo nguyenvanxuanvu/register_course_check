@@ -8,6 +8,7 @@ type CheckRequestDTO struct {
 
 type Course struct {
 	CourseId string `json:"courseId"`
+	CourseNum int `json:"courseNum"`
 }
 
 type SuggestionRequestDTO struct {

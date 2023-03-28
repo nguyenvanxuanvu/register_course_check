@@ -56,12 +56,14 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	}
 
 	var courseRegisterList []string
+	courseIdToCourseNum := map[string]int{}
 	num_credits := 0
 	for _, course := range req.RegisterCourses {
 		if slices.Contains(courseRegisterList, course.CourseId) {
 			return nil, errors.New(common.DUPLICATE_COURSE_REGISTER + ": " + course.CourseId)
 		} else {
 			courseRegisterList = append(courseRegisterList, course.CourseId)
+			courseIdToCourseNum[course.CourseId] = course.CourseNum
 			if s.dbConfig.GetCourseConfig(course.CourseId) == nil {
 				return nil, errors.New(common.NOT_FOUND_COURSE_ID + ": " + course.CourseId)
 			}
@@ -98,6 +100,7 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 
 			courseCheckResult := &dto.CourseCheck{
 				CourseId:    courseId,
+				CourseNum:  courseIdToCourseNum[courseId],
 				CourseName:  s.dbConfig.GetCourseConfig(courseId).CourseName,
 				CheckResult: PASS,
 			}

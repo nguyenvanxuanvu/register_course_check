@@ -17,6 +17,7 @@ type MinMaxCredit struct {
 
 type CourseCheck struct {
 	CourseId string  `json:"courseId"`
+	CourseNum int `json:"courseNum"`
 	CourseName string  `json:"courseName"`
 	CheckResult string `json:"checkResult"`
 	FailReasons []*Reason `json:"failReasons"`
