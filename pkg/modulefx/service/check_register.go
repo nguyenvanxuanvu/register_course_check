@@ -118,13 +118,30 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 	checkMaxCreditResult := dto.MinMaxCredit{
 		CheckResult: PASS,
 	}
-	minCreditsConfig, maxCreditsConfig := s.repository.GetMinMaxCredit(req.AcademicProgram, int(req.Semester))
+
+	minCreditsConfig, maxCreditsConfig := -1,-1
+	var err error
+	minMaxCredit,_ := s.cacheService.GetMinMaxCredit(ctx, studentId)
+	if minMaxCredit == nil {
+		minCreditsConfig, maxCreditsConfig, err = s.repository.GetMinMaxCredit(studentId, studentInfo.AcademicProgram, int(req.Semester))
+		if err != nil {
+			return nil, err
+		}
+		_, err := s.cacheService.TrySetMinMaxCredit(ctx, studentId, []int{minCreditsConfig, maxCreditsConfig})
+		if err != nil {
+			return nil, errors.New(common.SET_MIN_MAX_CREDIT_FAIL_REDIS)
+		}
+	} else {
+		minCreditsConfig = minMaxCredit[0]
+		maxCreditsConfig = minMaxCredit[1]
+	}
+
 
 	if minCreditsConfig < 0 {
-		return nil, errors.New(common.NOT_FOUND_MIN_CREDIT_CONFIG)
+		return nil, errors.New(common.MIN_CREDIT_CONFIG_WRONG)
 	}
 	if maxCreditsConfig < 0 {
-		return nil, errors.New(common.NOT_FOUND_MAX_CREDIT_CONFIG)
+		return nil, errors.New(common.MAX_CREDIT_CONFIG_WRONG)
 	}
 
 	if num_credits < minCreditsConfig {

@@ -1,11 +1,8 @@
 package dto
 
-
-
 type CheckRequestDTO struct {
-	StudentId uint64 `json:"studentId"`
-	AcademicProgram string `json:"academicProgram"`
-	Semester uint64	`json:"semester"`
+	StudentId       uint64    `json:"studentId"`
+	Semester        uint64    `json:"semester"`
 	RegisterCourses []*Course `json:"registerCourses"`
 }
 
@@ -15,6 +12,5 @@ type Course struct {
 
 type SuggestionRequestDTO struct {
 	StudentId uint64 `json:"studentId"`
-	Semester uint64	`json:"semester"`
+	Semester  uint64 `json:"semester"`
 }
-

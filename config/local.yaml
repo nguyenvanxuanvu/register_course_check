@@ -17,7 +17,8 @@ redis:
   
 cache:
   prefix: "lc"
-  student-info-ttl-ms: 43200000 # 0.5 day
+  student-ttl-ms: 43200000 # 0.5 day
+  min_max_credit-ttl-ms: 43200000 # 0.5 day
 
 mysql:
   url: 127.0.0.1:3306

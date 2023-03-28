@@ -12,8 +12,8 @@ type ConfigRepository interface {
 }
 
 type Repository interface {
-	GetMinMaxCredit(academicProgram string, semester int) (int, int)
-	GetListCourseOfTeachingPlan(faculty string, speciality string, academicProgram string, semester int) []dto.CourseInTeachingPlan
+	GetMinMaxCredit(studentId int, academicProgram string, semester int) (int, int, error)
+	GetListCourseOfTeachingPlan(faculty string, speciality string, academicProgram string, semester int) ([]string, []dto.FreeCreditInfo, error)
 }
 
 

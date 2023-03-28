@@ -11,6 +11,7 @@ const DELIMITER = ":"
 const (
 	STUDY_RESULT_CACHE_KEY_PREFIX string = "study_result"
 	STUDENT_INFO_CACHE_KEY_PREFIX string = "student_info"
+	MIN_MAX_CREDIT_CACHE_KEY_PREFIX string = "min_max_credit"
 )
 
 func getCachePrefix() string {
@@ -23,4 +24,8 @@ func GetStudyResultCacheKey(studentId int) string {
 
 func GetStudentInfoCacheKey(studentId int) string {
 	return getCachePrefix() + DELIMITER + STUDENT_INFO_CACHE_KEY_PREFIX + DELIMITER + fmt.Sprint(studentId)
+}
+
+func GetMinMaxCreditKey(studentId int) string {
+	return getCachePrefix() + DELIMITER + MIN_MAX_CREDIT_CACHE_KEY_PREFIX + DELIMITER + fmt.Sprint(studentId)
 }

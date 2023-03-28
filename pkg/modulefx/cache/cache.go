@@ -17,6 +17,9 @@ type CacheService interface {
 	TrySetStudyResult(ctx context.Context, studentId int, studyResult []client.CourseResult) (bool, error)
 	GetStudentInfo(ctx context.Context, studentId int) (*client.StudentInfo, error)
 	TrySetStudentInfo(ctx context.Context, studentId int, studentInfo *client.StudentInfo) (bool, error)
+
+	GetMinMaxCredit(ctx context.Context, studentId int) ([]int, error)
+	TrySetMinMaxCredit(ctx context.Context, studentId int, minMaxCredit []int) (bool, error)
 }
 
 
@@ -54,7 +57,7 @@ func (c cacheService) TrySetStudyResult(ctx context.Context, studentId int, stud
 	var err error = nil
 
 	cacheKey := GetStudyResultCacheKey(studentId)
-	ttl := viper.GetInt("student-info-ttl-ms")
+	ttl := viper.GetInt("student-ttl-ms")
 	data, err := json.Marshal(studyResult)
 	if err != nil {
 		return false, nil
@@ -90,7 +93,7 @@ func (c cacheService) TrySetStudentInfo(ctx context.Context, studentId int, stud
 	var err error = nil
 
 	cacheKey := GetStudentInfoCacheKey(studentId)
-	ttl := viper.GetInt("student-info-ttl-ms")
+	ttl := viper.GetInt("student-ttl-ms")
 	data, err := json.Marshal(studentInfo)
 	if err != nil {
 		return false, nil
@@ -104,3 +107,46 @@ func (c cacheService) TrySetStudentInfo(ctx context.Context, studentId int, stud
 
 }
 
+
+func (c cacheService) GetMinMaxCredit(ctx context.Context, studentId int) ([]int, error) {
+	var err error = nil
+	
+
+	cacheKey := GetMinMaxCreditKey(studentId)
+	minMaxCredit, err := c.rdb.Get(ctx, cacheKey).Result()
+	if minMaxCredit == "" || err != nil {
+		return nil, err
+	}
+	var minMaxCreditModel []int
+
+	err = json.Unmarshal([]byte(minMaxCredit), &minMaxCreditModel)
+	if err != nil {
+		return nil, err
+	}
+
+	
+
+	return minMaxCreditModel, nil
+}
+
+
+func (c cacheService) TrySetMinMaxCredit(ctx context.Context, studentId int, minMaxCredit []int) (bool, error) {
+	var err error = nil
+
+	cacheKey := GetMinMaxCreditKey(studentId)
+	ttl := viper.GetInt("min-max-credit-ttl-ms")
+	if err != nil {
+		return false, nil
+	}
+	data, err := json.Marshal(minMaxCredit)
+	if err != nil {
+		return false, nil
+	}
+	success, err := c.rdb.SetNX(ctx, cacheKey, data , time.Millisecond*time.Duration(ttl)).Result()
+	if err != nil {
+		return false, err
+	}
+
+	return success, nil
+
+}

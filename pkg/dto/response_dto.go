@@ -31,6 +31,7 @@ type Reason struct {
 
 type SuggestionResponseDTO struct {
 	Courses []CourseSuggestion `json:"courses"`
+	HintOfFreeCredit []FreeCreditInfo `json:"hintOfFreeCredit,omitempty"`
 	MinCredit int `json:"minCredit"`
 	MaxCredit int `json:"maxCredit"`
 }
@@ -38,5 +39,6 @@ type SuggestionResponseDTO struct {
 type CourseSuggestion struct {
 	CourseId string  `json:"courseId"`
 	CourseName string  `json:"courseName"` 
+	NumCredits int `json:"numCredits"`
 	Type int `json:"type"`        // 1: Chua dat   2: Chuong trinh hoc
 }

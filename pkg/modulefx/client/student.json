@@ -76,7 +76,23 @@
     {
         "studentId":       1915983,
         "studentName":     "Nguyễn Văn Xuân Vũ",
-        "studentStatus":   2,
+        "studentStatus":   1,
+        "falcuty":         "KHMT",
+        "academicProgram": "DT",
+        "speciality":      "KHM",
+        "semesterOrder":   3,
+        "studyResults": [
+          {
+              "courseId":   "CO6",
+              "courseName": "Công nghệ phần mềm",
+              "result":     1
+          }
+        ]
+      },
+      {
+        "studentId":       1915984,
+        "studentName":     "Nguyễn Văn",
+        "studentStatus":   1,
         "falcuty":         "KHMT",
         "academicProgram": "DT",
         "speciality":      "KHM",
