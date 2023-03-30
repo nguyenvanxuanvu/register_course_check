@@ -14,7 +14,7 @@ func NewClient() Client {
 	return &client{}
 }
 
-func (c *client) GetStudentInfo(studentId int) *StudentInfo {
+func (c *client) GetStudentInfo(studentId string) *StudentInfo {
 	// Get student status from core service
 	//http.Get("")
 	jsonFile, err := os.Open("pkg/modulefx/client/student.json")
@@ -47,7 +47,7 @@ func (c *client) GetStudentInfo(studentId int) *StudentInfo {
 
 }
 
-func (c *client) GetStudyResult(studentId int) []CourseResult {
+func (c *client) GetStudyResult(studentId string) []CourseResult {
 
 	jsonFile, err := os.Open("pkg/modulefx/client/student.json")
 	if err != nil {

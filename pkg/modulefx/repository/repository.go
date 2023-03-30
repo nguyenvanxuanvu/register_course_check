@@ -23,7 +23,7 @@ func NewRepository(db *sqlx.DB) Repository {
 
 const MIN_MAX_CREDIT_TABLE = "min_max_credit"
 const SELECT_MIN_CREDIT_CONFIG = "SELECT min_credit, max_credit, white_list FROM " + MIN_MAX_CREDIT_TABLE + " WHERE academic_program = ? AND semester = ?;"
-func (r *repository) GetMinMaxCredit(studentId int, academinProgram string, semester int) (int,int,error) {
+func (r *repository) GetMinMaxCredit(studentId string, academinProgram string, semester int) (int,int,error) {
 	
 	var rawMinCredits, rawMaxCredits []int
 	var rawWhiteLists []string
@@ -49,7 +49,7 @@ func (r *repository) GetMinMaxCredit(studentId int, academinProgram string, seme
 	var numMinCredits, numMaxCredits int = rawMinCredits[0], rawMaxCredits[0]
 	for idx, ele := range rawWhiteLists{
 		if ele != ""{
-			var listStudent []int
+			var listStudent []string
 			err = json.Unmarshal([]byte(ele), &listStudent)
 			if err != nil {
 				return -1, -1, err

@@ -25,7 +25,7 @@ const NOT_PERMIT_REGISTER_STUDENT = 2
 
 func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.CheckRequestDTO) (*dto.CheckResponseDTO, error) {
 	// check student status
-	studentId := int(req.StudentId)
+	studentId := req.StudentId
 	studentInfo, _ := s.cacheService.GetStudentInfo(ctx, studentId)
 	studentStatus := -1
 	if studentInfo != nil {
@@ -88,7 +88,7 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 		var listStudyResult []client.CourseResult
 		listStudyResult, _ = s.cacheService.GetStudyResult(ctx, studentId)
 		if listStudyResult == nil {
-			listStudyResult = s.client.GetStudyResult(int(req.StudentId))
+			listStudyResult = s.client.GetStudyResult(req.StudentId)
 			_, err := s.cacheService.TrySetStudyResult(ctx, studentId, listStudyResult)
 			if err != nil {
 				return nil, errors.New(common.SET_STUDY_RESULT_FAIL_REDIS)

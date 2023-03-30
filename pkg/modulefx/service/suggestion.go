@@ -14,11 +14,11 @@ const (
 	TEACHING_PLAN = 2
 )
 func (s *registerCourseCheckServiceImp) Suggestion(ctx context.Context, req *dto.SuggestionRequestDTO) (*dto.SuggestionResponseDTO, error) {
-	studentId := int(req.StudentId)
+	studentId := req.StudentId
 	var listStudyResult []client.CourseResult
 	listStudyResult, _ = s.cacheService.GetStudyResult(ctx, studentId)
 	if listStudyResult == nil {
-		listStudyResult = s.client.GetStudyResult(int(req.StudentId))
+		listStudyResult = s.client.GetStudyResult(req.StudentId)
 		_, err := s.cacheService.TrySetStudyResult(ctx, studentId, listStudyResult)
 		if err != nil {
 			return nil, errors.New(common.SET_STUDY_RESULT_FAIL_REDIS)
@@ -40,7 +40,7 @@ func (s *registerCourseCheckServiceImp) Suggestion(ctx context.Context, req *dto
 	var studentInfo *client.StudentInfo
 	studentInfo, _ = s.cacheService.GetStudentInfo(ctx, studentId)
 	if studentInfo == nil {
-		studentInfo = s.client.GetStudentInfo(int(req.StudentId))
+		studentInfo = s.client.GetStudentInfo(req.StudentId)
 		_, err := s.cacheService.TrySetStudentInfo(ctx, studentId, studentInfo)
 		if err != nil {
 			return nil, errors.New(common.SET_STUDENT_INFO_FAIL_REDIS)

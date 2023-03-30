@@ -5,7 +5,7 @@ type Students struct {
     Students []Student `json:"students"`
 }
 type Student struct {
-	StudentId int `json:"studentId"`
+	StudentId string `json:"studentId"`
 	StudentName string `json:"studentName"`
 	StudentStatus int `json:"studentStatus"`
 	Falcuty string     `json:"falcuty"`

@@ -13,13 +13,13 @@ import (
 
 
 type CacheService interface {
-	GetStudyResult(ctx context.Context, studentId int) ([]client.CourseResult, error)
-	TrySetStudyResult(ctx context.Context, studentId int, studyResult []client.CourseResult) (bool, error)
-	GetStudentInfo(ctx context.Context, studentId int) (*client.StudentInfo, error)
-	TrySetStudentInfo(ctx context.Context, studentId int, studentInfo *client.StudentInfo) (bool, error)
+	GetStudyResult(ctx context.Context, studentId string) ([]client.CourseResult, error)
+	TrySetStudyResult(ctx context.Context, studentId string, studyResult []client.CourseResult) (bool, error)
+	GetStudentInfo(ctx context.Context, studentId string) (*client.StudentInfo, error)
+	TrySetStudentInfo(ctx context.Context, studentId string, studentInfo *client.StudentInfo) (bool, error)
 
-	GetMinMaxCredit(ctx context.Context, studentId int) ([]int, error)
-	TrySetMinMaxCredit(ctx context.Context, studentId int, minMaxCredit []int) (bool, error)
+	GetMinMaxCredit(ctx context.Context, studentId string) ([]int, error)
+	TrySetMinMaxCredit(ctx context.Context, studentId string, minMaxCredit []int) (bool, error)
 }
 
 
@@ -32,7 +32,7 @@ func NewCacheService(rdb redisconfig.Cache) CacheService {
 }
 
 
-func (c cacheService) GetStudyResult(ctx context.Context, studentId int) ([]client.CourseResult, error) {
+func (c cacheService) GetStudyResult(ctx context.Context, studentId string) ([]client.CourseResult, error) {
 	var err error = nil
 	
 
@@ -53,7 +53,7 @@ func (c cacheService) GetStudyResult(ctx context.Context, studentId int) ([]clie
 	return studyResultModel, nil
 }
 
-func (c cacheService) TrySetStudyResult(ctx context.Context, studentId int, studyResult []client.CourseResult) (bool, error) {
+func (c cacheService) TrySetStudyResult(ctx context.Context, studentId string, studyResult []client.CourseResult) (bool, error) {
 	var err error = nil
 
 	cacheKey := GetStudyResultCacheKey(studentId)
@@ -70,7 +70,7 @@ func (c cacheService) TrySetStudyResult(ctx context.Context, studentId int, stud
 	return success, nil
 }
 
-func (c cacheService) GetStudentInfo(ctx context.Context, studentId int) (*client.StudentInfo, error) {
+func (c cacheService) GetStudentInfo(ctx context.Context, studentId string) (*client.StudentInfo, error) {
 	var err error = nil
 	
 
@@ -89,7 +89,7 @@ func (c cacheService) GetStudentInfo(ctx context.Context, studentId int) (*clien
 	return studentInfoModel, nil
 }
 
-func (c cacheService) TrySetStudentInfo(ctx context.Context, studentId int, studentInfo *client.StudentInfo) (bool, error) {
+func (c cacheService) TrySetStudentInfo(ctx context.Context, studentId string, studentInfo *client.StudentInfo) (bool, error) {
 	var err error = nil
 
 	cacheKey := GetStudentInfoCacheKey(studentId)
@@ -108,7 +108,7 @@ func (c cacheService) TrySetStudentInfo(ctx context.Context, studentId int, stud
 }
 
 
-func (c cacheService) GetMinMaxCredit(ctx context.Context, studentId int) ([]int, error) {
+func (c cacheService) GetMinMaxCredit(ctx context.Context, studentId string) ([]int, error) {
 	var err error = nil
 	
 
@@ -130,7 +130,7 @@ func (c cacheService) GetMinMaxCredit(ctx context.Context, studentId int) ([]int
 }
 
 
-func (c cacheService) TrySetMinMaxCredit(ctx context.Context, studentId int, minMaxCredit []int) (bool, error) {
+func (c cacheService) TrySetMinMaxCredit(ctx context.Context, studentId string, minMaxCredit []int) (bool, error) {
 	var err error = nil
 
 	cacheKey := GetMinMaxCreditKey(studentId)

@@ -18,14 +18,14 @@ func getCachePrefix() string {
 	return viper.GetString("cache.prefix")
 }
 
-func GetStudyResultCacheKey(studentId int) string {
+func GetStudyResultCacheKey(studentId string) string {
 	return getCachePrefix() + DELIMITER + STUDY_RESULT_CACHE_KEY_PREFIX + DELIMITER + fmt.Sprint(studentId)
 }
 
-func GetStudentInfoCacheKey(studentId int) string {
+func GetStudentInfoCacheKey(studentId string) string {
 	return getCachePrefix() + DELIMITER + STUDENT_INFO_CACHE_KEY_PREFIX + DELIMITER + fmt.Sprint(studentId)
 }
 
-func GetMinMaxCreditKey(studentId int) string {
+func GetMinMaxCreditKey(studentId string) string {
 	return getCachePrefix() + DELIMITER + MIN_MAX_CREDIT_CACHE_KEY_PREFIX + DELIMITER + fmt.Sprint(studentId)
 }
