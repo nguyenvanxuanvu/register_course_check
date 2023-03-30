@@ -104,7 +104,7 @@ INSERT INTO `course_condition` (`id`, `course_id`, `condition`) VALUES
 INSERT INTO `min_max_credit` (`id`, `academic_program`, `semester`, `min_credit`, `max_credit`, `white_list`, `description`) VALUES
 (1, 'DT', 191, 14, 21, NULL, NULL);
 INSERT INTO `min_max_credit` (`id`, `academic_program`, `semester`, `min_credit`, `max_credit`, `white_list`, `description`) VALUES
-(2, 'DT', 191, 1, 21, '[1915983]', 'test');
+(2, 'DT', 191, 1, 21, '["1915983"]', 'test');
 
 
 INSERT INTO `teaching_plan` (`id`, `faculty`, `speciality`, `academic_program`, `semester_order`, `course_list`, `free_credit_info`) VALUES
