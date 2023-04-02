@@ -1,0 +1,29 @@
+server:
+  port: 8000
+  shutdown-timeout-sec: 5
+service:
+  name: register_course_check
+  env: local
+
+log:
+  encoding: json
+  tracing: false
+
+debug:
+  gin: release
+
+redis:
+  addresses: 127.0.0.1:6379
+   
+cache:
+  prefix: "prod"
+  student-ttl-ms: 43200000 # 0.5 day
+  min_max_credit-ttl-ms: 43200000 # 0.5 day
+
+mysql:
+  url: 127.0.0.1:3306
+  username: root
+  password: Bindeptrai231
+  schema: register_course_check
+
+

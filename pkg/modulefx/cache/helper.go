@@ -26,6 +26,6 @@ func GetStudentInfoCacheKey(studentId string) string {
 	return getCachePrefix() + DELIMITER + STUDENT_INFO_CACHE_KEY_PREFIX + DELIMITER + fmt.Sprint(studentId)
 }
 
-func GetMinMaxCreditKey(studentId string) string {
-	return getCachePrefix() + DELIMITER + MIN_MAX_CREDIT_CACHE_KEY_PREFIX + DELIMITER + fmt.Sprint(studentId)
+func GetMinMaxCreditKey(studentIdWithSemester string) string {
+	return getCachePrefix() + DELIMITER + MIN_MAX_CREDIT_CACHE_KEY_PREFIX + DELIMITER + fmt.Sprint(studentIdWithSemester)
 }

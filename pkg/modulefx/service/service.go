@@ -30,3 +30,8 @@ func NewRegisterCourseCheckService(
 }
 
 
+type chanResult[T any] struct {
+	result T
+	err    error
+}
+

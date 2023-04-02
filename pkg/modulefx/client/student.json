@@ -70,6 +70,11 @@
             "courseId":   "CHM",
             "courseName": "Chemistry",
             "result":     1
+        },
+        {
+            "courseId":   "CALC",
+            "courseName": "Chemistry",
+            "result":     3
         }
     ]
     },

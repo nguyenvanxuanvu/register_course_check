@@ -18,8 +18,8 @@ type CacheService interface {
 	GetStudentInfo(ctx context.Context, studentId string) (*client.StudentInfo, error)
 	TrySetStudentInfo(ctx context.Context, studentId string, studentInfo *client.StudentInfo) (bool, error)
 
-	GetMinMaxCredit(ctx context.Context, studentId string) ([]int, error)
-	TrySetMinMaxCredit(ctx context.Context, studentId string, minMaxCredit []int) (bool, error)
+	GetMinMaxCredit(ctx context.Context, studentIdWithSemester string) ([]int, error)
+	TrySetMinMaxCredit(ctx context.Context, studentIdWithSemester string, minMaxCredit []int) (bool, error)
 }
 
 
@@ -108,11 +108,11 @@ func (c cacheService) TrySetStudentInfo(ctx context.Context, studentId string, s
 }
 
 
-func (c cacheService) GetMinMaxCredit(ctx context.Context, studentId string) ([]int, error) {
+func (c cacheService) GetMinMaxCredit(ctx context.Context, studentIdWithSemester string) ([]int, error) {
 	var err error = nil
 	
 
-	cacheKey := GetMinMaxCreditKey(studentId)
+	cacheKey := GetMinMaxCreditKey(studentIdWithSemester)
 	minMaxCredit, err := c.rdb.Get(ctx, cacheKey).Result()
 	if minMaxCredit == "" || err != nil {
 		return nil, err
@@ -130,10 +130,10 @@ func (c cacheService) GetMinMaxCredit(ctx context.Context, studentId string) ([]
 }
 
 
-func (c cacheService) TrySetMinMaxCredit(ctx context.Context, studentId string, minMaxCredit []int) (bool, error) {
+func (c cacheService) TrySetMinMaxCredit(ctx context.Context, studentIdWithSemester string, minMaxCredit []int) (bool, error) {
 	var err error = nil
 
-	cacheKey := GetMinMaxCreditKey(studentId)
+	cacheKey := GetMinMaxCreditKey(studentIdWithSemester)
 	ttl := viper.GetInt("min-max-credit-ttl-ms")
 	if err != nil {
 		return false, nil

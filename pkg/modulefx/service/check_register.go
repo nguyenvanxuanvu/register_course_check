@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"strconv"
+
 	"github.com/nguyenvanxuanvu/register_course_check/pkg/common"
 	"github.com/nguyenvanxuanvu/register_course_check/pkg/dto"
 	"github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/client"
@@ -26,33 +28,17 @@ const NOT_PERMIT_REGISTER_STUDENT = 2
 func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.CheckRequestDTO) (*dto.CheckResponseDTO, error) {
 	// check student status
 	studentId := req.StudentId
-	studentInfo, _ := s.cacheService.GetStudentInfo(ctx, studentId)
-	studentStatus := -1
-	if studentInfo != nil {
-		studentStatus = studentInfo.StudentStatus
-	}
-
-	if studentStatus == -1 {
-		studentInfo = s.client.GetStudentInfo(studentId)
-		if studentInfo == nil {
-			return nil, errors.New(common.NOT_FOUND_STUDENT_STATUS)
+	var studentInfo *client.StudentInfo
+	studentInfo, err := s.checkStudentStatus(ctx, studentId)
+	if err != nil {
+		if err.Error() == NOT_PERMIT_REGISTER_COURSE {
+			return &dto.CheckResponseDTO{
+				Status:        FAIL,
+				StudentStatus: NOT_PERMIT_REGISTER_COURSE,
+			}, nil
+		} else {
+			return nil, err
 		}
-		studentStatus = studentInfo.StudentStatus
-		_, err := s.cacheService.TrySetStudentInfo(ctx, studentId, studentInfo)
-		if err != nil {
-			return nil, errors.New(common.SET_STUDENT_INFO_FAIL_REDIS)
-		}
-	}
-
-	if studentStatus == NOT_PERMIT_REGISTER_STUDENT { // not permit to register student
-		return &dto.CheckResponseDTO{
-			Status:        FAIL,
-			StudentStatus: NOT_PERMIT_REGISTER_COURSE,
-		}, nil
-	}
-
-	if studentStatus != NORMAL_STATUS {
-		return nil, errors.New(common.NOT_FOUND_STUDENT_STATUS)
 	}
 
 	var courseRegisterList []string
@@ -84,34 +70,11 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 		}
 	}
 
-	if len(courseNeedChecks) > 0 {
-		var listStudyResult []client.CourseResult
-		listStudyResult, _ = s.cacheService.GetStudyResult(ctx, studentId)
-		if listStudyResult == nil {
-			listStudyResult = s.client.GetStudyResult(req.StudentId)
-			_, err := s.cacheService.TrySetStudyResult(ctx, studentId, listStudyResult)
-			if err != nil {
-				return nil, errors.New(common.SET_STUDY_RESULT_FAIL_REDIS)
-			}
-		}
+	// check condition of list course
 
-		for _, courseId := range courseNeedChecks {
-			condition := s.dbConfig.GetCourseConfig(courseId).CourseConditionConfig
+	listCourseConditionChan := make(chan chanResult[bool], 1)
 
-			courseCheckResult := &dto.CourseCheck{
-				CourseId:    courseId,
-				CourseNum:  courseIdToCourseNum[courseId],
-				CourseName:  s.dbConfig.GetCourseConfig(courseId).CourseName,
-				CheckResult: PASS,
-			}
-			if !s.CheckConditionRecursion(courseId, courseCheckResult.CourseName, courseCheckResult, condition.Condition, listStudyResult, courseRegisterList) {
-				if courseCheckResult.CheckResult != PASS {
-					courseCheckResults = append(courseCheckResults, courseCheckResult)
-				}
-			}
-
-		}
-	}
+	go s.checkListCourseConditionAsync(ctx, &courseCheckResults, courseNeedChecks, studentId, courseIdToCourseNum, courseRegisterList, listCourseConditionChan)
 
 	// check min credit
 
@@ -122,45 +85,13 @@ func (s *registerCourseCheckServiceImp) Check(ctx context.Context, req *dto.Chec
 		CheckResult: PASS,
 	}
 
-	minCreditsConfig, maxCreditsConfig := -1,-1
-	var err error
-	minMaxCredit,_ := s.cacheService.GetMinMaxCredit(ctx, studentId)
-	if minMaxCredit == nil {
-		minCreditsConfig, maxCreditsConfig, err = s.repository.GetMinMaxCredit(studentId, studentInfo.AcademicProgram, int(req.Semester))
-		if err != nil {
-			return nil, err
-		}
-		_, err := s.cacheService.TrySetMinMaxCredit(ctx, studentId, []int{minCreditsConfig, maxCreditsConfig})
-		if err != nil {
-			return nil, errors.New(common.SET_MIN_MAX_CREDIT_FAIL_REDIS)
-		}
-	} else {
-		minCreditsConfig = minMaxCredit[0]
-		maxCreditsConfig = minMaxCredit[1]
-	}
+	minMaxCreditChan := make(chan chanResult[bool], 1)
 
+	go s.checkMinMaxCreditAsync(ctx, &checkMinCreditResult, &checkMaxCreditResult, studentId, studentInfo.AcademicProgram, int(req.Semester), num_credits, minMaxCreditChan)
 
-	if minCreditsConfig < 0 {
-		return nil, errors.New(common.MIN_CREDIT_CONFIG_WRONG)
-	}
-	if maxCreditsConfig < 0 {
-		return nil, errors.New(common.MAX_CREDIT_CONFIG_WRONG)
-	}
-
-	if num_credits < minCreditsConfig {
-		checkMinCreditResult.CheckResult = FAIL
-		checkMinCreditResult.CurrentRegister = num_credits
-		checkMinCreditResult.Config = minCreditsConfig
-	}
-
-	if num_credits > maxCreditsConfig {
-		checkMaxCreditResult.CheckResult = FAIL
-		checkMaxCreditResult.CurrentRegister = num_credits
-		checkMaxCreditResult.Config = maxCreditsConfig
-	}
-
-	if minCreditsConfig > maxCreditsConfig {
-		return nil, errors.New(common.MIN_MAX_CONFIG_WRONG)
+	minMaxCreditRes, listCourseConditionRes := <-minMaxCreditChan, <-listCourseConditionChan
+	if minMaxCreditRes.err != nil || listCourseConditionRes.err != nil {
+		return nil, oneOf(minMaxCreditRes.err, listCourseConditionRes.err)
 	}
 
 	status := PASS
@@ -291,4 +222,137 @@ func isSuccess(courseResults []client.CourseResult, courseId string, theType int
 		return false
 	}
 
+}
+
+func (s *registerCourseCheckServiceImp) checkMinMaxCreditAsync(ctx context.Context, checkMinCreditResult *dto.MinMaxCredit, checkMaxCreditResult *dto.MinMaxCredit, studentId string, academicProgram string, semester int, numCredits int, c chan<- chanResult[bool]) {
+	result := chanResult[bool]{}
+	result.result = false
+	minCreditsConfig, maxCreditsConfig := -1, -1
+	var err error
+	minMaxCredit, _ := s.cacheService.GetMinMaxCredit(ctx, studentId+"_"+strconv.Itoa(semester))
+	if minMaxCredit == nil {
+		minCreditsConfig, maxCreditsConfig, err = s.repository.GetMinMaxCredit(studentId, academicProgram, semester)
+		if err != nil {
+			result.err = err
+			c <- result
+			return
+		}
+		_, err := s.cacheService.TrySetMinMaxCredit(ctx, studentId+"_"+strconv.Itoa(semester), []int{minCreditsConfig, maxCreditsConfig})
+		if err != nil {
+			result.err = errors.New(common.SET_MIN_MAX_CREDIT_FAIL_REDIS)
+			c <- result
+			return
+		}
+	} else {
+		minCreditsConfig = minMaxCredit[0]
+		maxCreditsConfig = minMaxCredit[1]
+	}
+
+	if minCreditsConfig < 0 {
+		result.err = errors.New(common.MIN_CREDIT_CONFIG_WRONG)
+		c <- result
+		return
+	}
+	if maxCreditsConfig < 0 {
+		result.err = errors.New(common.MAX_CREDIT_CONFIG_WRONG)
+		c <- result
+		return
+	}
+
+	if numCredits < minCreditsConfig {
+		checkMinCreditResult.CheckResult = FAIL
+		checkMinCreditResult.CurrentRegister = numCredits
+		checkMinCreditResult.Config = minCreditsConfig
+	}
+
+	if numCredits > maxCreditsConfig {
+		checkMaxCreditResult.CheckResult = FAIL
+		checkMaxCreditResult.CurrentRegister = numCredits
+		checkMaxCreditResult.Config = maxCreditsConfig
+	}
+
+	if minCreditsConfig > maxCreditsConfig {
+		result.err = errors.New(common.MIN_MAX_CONFIG_WRONG)
+		c <- result
+		return
+	}
+	result.result = true
+	c <- result
+}
+
+func (s *registerCourseCheckServiceImp) checkListCourseConditionAsync(ctx context.Context, courseCheckResults *([]*dto.CourseCheck), courseNeedChecks []string, studentId string, courseIdToCourseNum map[string]int, courseRegisterList []string, c chan<- chanResult[bool]) {
+	result := chanResult[bool]{}
+	result.result = false
+	if len(courseNeedChecks) > 0 {
+		var listStudyResult []client.CourseResult
+		listStudyResult, _ = s.cacheService.GetStudyResult(ctx, studentId)
+		if listStudyResult == nil {
+			listStudyResult = s.client.GetStudyResult(studentId)
+			_, err := s.cacheService.TrySetStudyResult(ctx, studentId, listStudyResult)
+			if err != nil {
+				result.err = errors.New(common.SET_STUDY_RESULT_FAIL_REDIS)
+				c <- result
+				return
+			}
+		}
+
+		for _, courseId := range courseNeedChecks {
+			condition := s.dbConfig.GetCourseConfig(courseId).CourseConditionConfig
+
+			courseCheckResult := &dto.CourseCheck{
+				CourseId:    courseId,
+				CourseNum:   courseIdToCourseNum[courseId],
+				CourseName:  s.dbConfig.GetCourseConfig(courseId).CourseName,
+				CheckResult: PASS,
+			}
+			if !s.CheckConditionRecursion(courseId, courseCheckResult.CourseName, courseCheckResult, condition.Condition, listStudyResult, courseRegisterList) {
+				if courseCheckResult.CheckResult != PASS {
+					*courseCheckResults = append(*courseCheckResults, courseCheckResult)
+				}
+			}
+
+		}
+	}
+
+	result.result = true
+	c <- result
+}
+
+func oneOf(es ...error) error {
+	for _, ele := range es {
+		if ele != nil {
+			return ele
+		}
+	}
+	return nil
+}
+
+func (s *registerCourseCheckServiceImp) checkStudentStatus(ctx context.Context, studentId string) (*client.StudentInfo, error) {
+
+	studentInfo, _ := s.cacheService.GetStudentInfo(ctx, studentId)
+	studentStatus := -1
+	if studentInfo != nil {
+		studentStatus = studentInfo.StudentStatus
+	}
+	if studentStatus == -1 {
+
+		studentInfo = s.client.GetStudentInfo(studentId)
+		if studentInfo == nil {
+			return nil, errors.New(common.NOT_FOUND_STUDENT_STATUS)
+		}
+		studentStatus = studentInfo.StudentStatus
+		_, err := s.cacheService.TrySetStudentInfo(ctx, studentId, studentInfo)
+		if err != nil {
+			return nil, errors.New(common.SET_STUDENT_INFO_FAIL_REDIS)
+		}
+	}
+
+	if studentStatus == NOT_PERMIT_REGISTER_STUDENT { // not permit to register student
+		return nil, errors.New(NOT_PERMIT_REGISTER_COURSE)
+	}
+
+	if studentStatus != NORMAL_STATUS {
+		return nil, errors.New(common.NOT_FOUND_STUDENT_STATUS)
+	}
+	return studentInfo, nil
 }

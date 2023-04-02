@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"github.com/nguyenvanxuanvu/register_course_check/pkg/common"
 	"github.com/nguyenvanxuanvu/register_course_check/pkg/dto"
@@ -10,47 +11,94 @@ import (
 )
 
 const (
-	NOT_PASS = 1
+	NOT_PASS      = 1
 	TEACHING_PLAN = 2
 )
+
 func (s *registerCourseCheckServiceImp) Suggestion(ctx context.Context, req *dto.SuggestionRequestDTO) (*dto.SuggestionResponseDTO, error) {
 	studentId := req.StudentId
+	var studentInfo *client.StudentInfo
+	studentInfo, err := s.checkStudentStatus(ctx, studentId)
+	if err != nil {
+		return nil, err
+	}
+
+	semester := int(req.Semester)
+	var failReasons []dto.CourseSuggestion
+	var courseSuggestionsFailReasons []dto.CourseSuggestion
+
+	failCoursesChan := make(chan chanResult[bool], 1)
+	teachingPlanCoursesChan := make(chan chanResult[bool], 1)
+	minMaxCreditChan := make(chan chanResult[bool], 1)
+
+	// get fail course list of student
+	go s.getFailCoursesAsync(ctx, studentId, semester, &courseSuggestionsFailReasons, failCoursesChan)
+
+	// get list course of teaching plan of student
+
+	var freeCreditInfo []dto.FreeCreditInfo
+	var courseSuggestionsTeachingPlan []dto.CourseSuggestion
+	go s.getCoursesTeachingPlan(ctx, studentId, studentInfo, &courseSuggestionsTeachingPlan, &freeCreditInfo, teachingPlanCoursesChan)
+
+	// get min max credit config for student
+	var minCredit, maxCredit int
+	go s.getMinMaxCreditAsync(ctx, studentId, studentInfo.AcademicProgram, semester, &minCredit, &maxCredit, minMaxCreditChan)
+
+	failCoursesRes, teachingPlanCoursesRes, minMaxCreditRes := <-failCoursesChan, <-teachingPlanCoursesChan, <-minMaxCreditChan
+	if failCoursesRes.err != nil || teachingPlanCoursesRes.err != nil || minMaxCreditRes.err != nil {
+		return nil, oneOf(failCoursesRes.err, teachingPlanCoursesRes.err, minMaxCreditRes.err)
+	}
+	failReasons = append(courseSuggestionsFailReasons, courseSuggestionsTeachingPlan...)
+	return &dto.SuggestionResponseDTO{
+		Courses:          failReasons,
+		HintOfFreeCredit: freeCreditInfo,
+		MinCredit:        minCredit,
+		MaxCredit:        maxCredit,
+	}, nil
+}
+
+func (s *registerCourseCheckServiceImp) getFailCoursesAsync(ctx context.Context, studentId string, semester int, courseSuggestionsFailReasons *[]dto.CourseSuggestion, c chan<- chanResult[bool]) {
+	result := chanResult[bool]{}
+	result.result = false
+
 	var listStudyResult []client.CourseResult
-	listStudyResult, _ = s.cacheService.GetStudyResult(ctx, studentId)
+	listStudyResult, _ = s.cacheService.GetStudyResult(ctx, studentId+"_"+strconv.Itoa(semester))
 	if listStudyResult == nil {
-		listStudyResult = s.client.GetStudyResult(req.StudentId)
-		_, err := s.cacheService.TrySetStudyResult(ctx, studentId, listStudyResult)
+		listStudyResult = s.client.GetStudyResult(studentId)
+		_, err := s.cacheService.TrySetStudyResult(ctx, studentId+"_"+strconv.Itoa(semester), listStudyResult)
 		if err != nil {
-			return nil, errors.New(common.SET_STUDY_RESULT_FAIL_REDIS)
+			result.err = errors.New(common.SET_STUDY_RESULT_FAIL_REDIS)
+			c <- result
+			return
 		}
 	}
-	var courseSuggestions []dto.CourseSuggestion
+
 	for _, course := range listStudyResult {
-		if course.Result == 3{
+		if course.Result == 3 {
 			course := dto.CourseSuggestion{
 				CourseId:   course.CourseId,
 				CourseName: course.CourseName,
 				NumCredits: s.dbConfig.GetCourseConfig(course.CourseId).NumCredits,
 				Type:       NOT_PASS,
 			}
-			courseSuggestions = append(courseSuggestions, course)
+			*courseSuggestionsFailReasons = append(*courseSuggestionsFailReasons, course)
 		}
 	}
+	result.result = true
+	c <- result
+}
 
-	var studentInfo *client.StudentInfo
-	studentInfo, _ = s.cacheService.GetStudentInfo(ctx, studentId)
-	if studentInfo == nil {
-		studentInfo = s.client.GetStudentInfo(req.StudentId)
-		_, err := s.cacheService.TrySetStudentInfo(ctx, studentId, studentInfo)
-		if err != nil {
-			return nil, errors.New(common.SET_STUDENT_INFO_FAIL_REDIS)
-		}
-	}
+func (s *registerCourseCheckServiceImp) getCoursesTeachingPlan(ctx context.Context, studentId string, studentInfo *client.StudentInfo, courseSuggestionsTeachingPlan *[]dto.CourseSuggestion, freeCreditInfo *[]dto.FreeCreditInfo, c chan<- chanResult[bool]) {
+	result := chanResult[bool]{}
+	result.result = false
 
-	listCourse, freeCreditInfo, err := s.repository.GetListCourseOfTeachingPlan(studentInfo.Falcuty, studentInfo.Speciality, studentInfo.AcademicProgram, studentInfo.SemesterOrder)
+	listCourse, freeCreditInfoFromDB, err := s.repository.GetListCourseOfTeachingPlan(studentInfo.Falcuty, studentInfo.Speciality, studentInfo.AcademicProgram, studentInfo.SemesterOrder)
 	if err != nil {
-		return nil, err
+		result.err = err
+		c <- result
+		return
 	}
+	*freeCreditInfo = freeCreditInfoFromDB
 
 	for _, course := range listCourse {
 		courseModel := dto.CourseSuggestion{
@@ -60,32 +108,41 @@ func (s *registerCourseCheckServiceImp) Suggestion(ctx context.Context, req *dto
 			courseModel.CourseId = course
 			courseModel.CourseName = cf.CourseName
 			courseModel.NumCredits = s.dbConfig.GetCourseConfig(course).NumCredits
-			courseSuggestions = append(courseSuggestions, courseModel)
+			*courseSuggestionsTeachingPlan = append(*courseSuggestionsTeachingPlan, courseModel)
 		}
-
-		
 
 	}
-	var minCredit, maxCredit int
-	minMaxCredit,_ := s.cacheService.GetMinMaxCredit(ctx, studentId)
+	result.result = true
+	c <- result
+}
+
+func (s *registerCourseCheckServiceImp) getMinMaxCreditAsync(ctx context.Context, studentId string, academicProgram string, semester int, minCredit *int, maxCredit *int, c chan<- chanResult[bool]) {
+	result := chanResult[bool]{}
+	result.result = false
+
+	minMaxCredit, _ := s.cacheService.GetMinMaxCredit(ctx, studentId+"_"+strconv.Itoa(semester))
+
 	if minMaxCredit == nil {
-		minCredit, maxCredit, err = s.repository.GetMinMaxCredit(studentId, studentInfo.AcademicProgram, int(req.Semester))
-		if err != nil{
-			return nil, err
-		}
-		_, err := s.cacheService.TrySetMinMaxCredit(ctx, studentId, []int{minCredit, maxCredit})
+		min, max, err := s.repository.GetMinMaxCredit(studentId, academicProgram, semester)
+		*minCredit = min
+		*maxCredit = max
+
 		if err != nil {
-			return nil, errors.New(common.SET_MIN_MAX_CREDIT_FAIL_REDIS)
+			result.err = err
+			c <- result
+			return
+		}
+		_, err = s.cacheService.TrySetMinMaxCredit(ctx, studentId+"_"+strconv.Itoa(semester), []int{*minCredit, *maxCredit})
+
+		if err != nil {
+			result.err = errors.New(common.SET_MIN_MAX_CREDIT_FAIL_REDIS)
+			c <- result
+			return
 		}
 	} else {
-		minCredit = minMaxCredit[0]
-		maxCredit = minMaxCredit[1]
+		*minCredit = minMaxCredit[0]
+		*maxCredit = minMaxCredit[1]
 	}
-	
-	return &dto.SuggestionResponseDTO{
-		Courses:          courseSuggestions,
-		HintOfFreeCredit: freeCreditInfo,
-		MinCredit:        minCredit,
-		MaxCredit:        maxCredit,
-	}, nil
+	result.result = true
+	c <- result
 }
