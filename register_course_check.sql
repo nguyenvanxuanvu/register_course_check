@@ -6,8 +6,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE `register_course_check` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `register_course_check`;
 
 DROP TABLE IF EXISTS `course`;
 CREATE TABLE `course` (
@@ -20,23 +18,21 @@ CREATE TABLE `course` (
 
 DROP TABLE IF EXISTS `course_condition`;
 CREATE TABLE `course_condition` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL,
   `course_id` varchar(45) NOT NULL,
   `condition` json NOT NULL,
   PRIMARY KEY (`id`),
   KEY `course_id_fk_idx` (`course_id`),
   CONSTRAINT `course_id_fk` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 DROP TABLE IF EXISTS `min_max_credit`;
 CREATE TABLE `min_max_credit` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `academic_program` varchar(45) DEFAULT NULL,
-  `semester` int DEFAULT NULL,
+  `academic_program` varchar(45) NOT NULL,
+  `semester` int NOT NULL,
   `min_credit` int NOT NULL DEFAULT '-1',
   `max_credit` int NOT NULL DEFAULT '-1',
-  `white_list` longtext,
-  `description` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -51,6 +47,17 @@ CREATE TABLE `teaching_plan` (
   `free_credit_info` longtext,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS `white_list`;
+CREATE TABLE `white_list` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `student_id` varchar(45) NOT NULL,
+  `semester` int NOT NULL,
+  `min_credit` int NOT NULL,
+  `max_credit` int NOT NULL,
+  `description` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `course` (`id`, `course_name`, `num_credits`, `faculty`) VALUES
 ('ALG', 'Algebra', 3, 'Demo');
@@ -101,14 +108,20 @@ INSERT INTO `course_condition` (`id`, `course_id`, `condition`) VALUES
 (113, 'PHAR', '{\"op\": \"AND\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"CHM\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"BIOL\"}}]}'),
 (114, 'test', '{\"op\": \"OR\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"ENGL\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"GER\"}}, {\"op\": \"AND\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"SPAN\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"CHIN\"}}]}]}');
 
-INSERT INTO `min_max_credit` (`id`, `academic_program`, `semester`, `min_credit`, `max_credit`, `white_list`, `description`) VALUES
-(1, 'DT', 191, 14, 21, NULL, NULL);
-INSERT INTO `min_max_credit` (`id`, `academic_program`, `semester`, `min_credit`, `max_credit`, `white_list`, `description`) VALUES
-(2, 'DT', 191, 1, 21, '["1915983"]', 'test');
+INSERT INTO `min_max_credit` (`id`, `academic_program`, `semester`, `min_credit`, `max_credit`) VALUES
+(1, 'DT', 191, 14, 21);
+INSERT INTO `min_max_credit` (`id`, `academic_program`, `semester`, `min_credit`, `max_credit`) VALUES
+(2, 'CLC', 191, 12, 22);
 
 
 INSERT INTO `teaching_plan` (`id`, `faculty`, `speciality`, `academic_program`, `semester_order`, `course_list`, `free_credit_info`) VALUES
 (1, 'KHMT', 'KHM', 'DT', 3, '[\"C S\", \"CALC\"]', '[\n  {\n    \"nums\": 3,\n    \"group\": \"C\"\n  },\n  {\n    \"nums\": 6,\n    \"group\": \"D\"\n  }\n]');
+
+
+INSERT INTO `white_list` (`id`, `student_id`, `semester`, `min_credit`, `max_credit`, `description`) VALUES
+(1, '1915983', 191, 1, 20, 'test');
+INSERT INTO `white_list` (`id`, `student_id`, `semester`, `min_credit`, `max_credit`, `description`) VALUES
+(2, '1915983', 192, 4, 15, NULL);
 
 
 
