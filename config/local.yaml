@@ -26,4 +26,7 @@ mysql:
   password: Bindeptrai231
   schema: register_course_check
 
+authen:
+  api-key: "abcd"
+
 
