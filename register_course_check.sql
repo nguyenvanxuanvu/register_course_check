@@ -18,7 +18,7 @@ CREATE TABLE `course` (
 
 DROP TABLE IF EXISTS `course_condition`;
 CREATE TABLE `course_condition` (
-  `id` bigint NOT NULL,
+  `id` int NOT NULL,
   `course_id` varchar(45) NOT NULL,
   `condition` json NOT NULL,
   PRIMARY KEY (`id`),
@@ -28,7 +28,7 @@ CREATE TABLE `course_condition` (
 
 DROP TABLE IF EXISTS `min_max_credit`;
 CREATE TABLE `min_max_credit` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `academic_program` varchar(45) NOT NULL,
   `semester` int NOT NULL,
   `min_credit` int NOT NULL DEFAULT '-1',
@@ -50,14 +50,14 @@ CREATE TABLE `teaching_plan` (
 
 DROP TABLE IF EXISTS `white_list`;
 CREATE TABLE `white_list` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL,
   `student_id` varchar(45) NOT NULL,
   `semester` int NOT NULL,
   `min_credit` int NOT NULL,
   `max_credit` int NOT NULL,
   `description` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `course` (`id`, `course_name`, `num_credits`, `faculty`) VALUES
 ('ALG', 'Algebra', 3, 'Demo');
