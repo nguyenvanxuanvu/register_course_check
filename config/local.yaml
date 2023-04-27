@@ -16,7 +16,7 @@ redis:
   addresses: redis://red-ch51g02k728glsiqtrvg:6379
   
 cache:
-  prefix: "lc"
+  prefix: "prod"
   student-ttl-ms: 43200000 # 0.5 day
   min_max_credit-ttl-ms: 43200000 # 0.5 day
 
@@ -28,5 +28,3 @@ mysql:
 
 authen:
   api-key: "abcd"
-
-
