@@ -3,7 +3,7 @@ package redis
 import (
 	"context"
 	"log"
-	"strings"
+	//"strings"
 
 	redisLib "github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
@@ -18,9 +18,13 @@ func NewCache(lifecycle fx.Lifecycle) redisconfig.Cache {
 		log.Fatal("Invalid redis address")
 	}
 
-	client := redisLib.NewUniversalClient(&redisLib.UniversalOptions{
-		Addrs: strings.Split(addresses, ","),
-	})
+	// client := redisLib.NewUniversalClient(&redisLib.UniversalOptions{
+	// 	Addrs: strings.Split(addresses, ","),
+	// })
+	opt, _ := redisLib.ParseURL(addresses)
+
+	
+	client := redisLib.NewClient(opt)
 
 	
 
