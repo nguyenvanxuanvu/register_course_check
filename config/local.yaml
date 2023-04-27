@@ -13,18 +13,18 @@ debug:
   gin: release
 
 redis:
-  addresses: rediss://red-ch51g02k728glsiqtrvg:Fxq305SAkTE7WOJajJsa1x4Pc5quR5H9@singapore-redis.render.com:6379
+  addresses: redis://127.0.0.1:6379
   
 cache:
-  prefix: "prod"
+  prefix: "local"
   student-ttl-ms: 43200000 # 0.5 day
   min_max_credit-ttl-ms: 43200000 # 0.5 day
 
 mysql:
-  url: db4free.net:3306
-  username: user_register
-  password: 112358112358
-  schema: test_register
+  url: 127.0.0.1:3306
+  username: root
+  password: Bindeptrai231
+  schema: register_course_check
 
 authen:
   api-key: "abcd"
