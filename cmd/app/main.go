@@ -26,9 +26,9 @@ func main() {
 
 		config.Module,
 		httpserver.Module,
-		mysql.Module,
 		modulefx.Module,
 		redis.Module,
+		mysql.Module,
 	)
 	app.Run()
 }
