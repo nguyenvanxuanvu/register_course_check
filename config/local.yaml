@@ -21,10 +21,10 @@ cache:
   min_max_credit-ttl-ms: 43200000 # 0.5 day
 
 mysql:
-  url: 127.0.0.1:3306
-  username: root
-  password: Bindeptrai231
-  schema: register_course_check
+  url: db4free.net:3306
+  username: user_register
+  password: 112358112358
+  schema: test_register
 
 authen:
   api-key: "abcd"
