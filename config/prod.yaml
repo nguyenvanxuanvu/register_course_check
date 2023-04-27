@@ -13,7 +13,7 @@ debug:
   gin: release
 
 redis:
-  addresses: redis://red-ch4mv4b3cv23dkl8ocg0:6379
+  addresses: rediss://red-ch4mv4b3cv23dkl8ocg0:7eVTlMzeJt9urqvo65M9n8AaN0z8312m@singapore-redis.render.com:6379
   
 cache:
   prefix: "prod"
