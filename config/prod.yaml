@@ -3,7 +3,7 @@ server:
   shutdown-timeout-sec: 5
 service:
   name: register_course_check
-  env: local
+  env: production
 
 log:
   encoding: json
@@ -13,8 +13,8 @@ debug:
   gin: release
 
 redis:
-  addresses: 127.0.0.1:6379
-   
+  addresses: redis://red-ch4mv4b3cv23dkl8ocg0:6379
+  
 cache:
   prefix: "prod"
   student-ttl-ms: 43200000 # 0.5 day
@@ -26,4 +26,5 @@ mysql:
   password: Bindeptrai231
   schema: register_course_check
 
-
+authen:
+  api-key: "abcd"

@@ -35,6 +35,7 @@ func NewCache(lifecycle fx.Lifecycle) redisconfig.Cache {
 		log.Println("Closing redis connection")
 		return client.Close()
 	}})
+	
 
 	return &redisconfig.RedisCache{UniversalClient: client}
 }
