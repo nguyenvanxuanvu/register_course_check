@@ -14,6 +14,7 @@ const (
 	NOT_FOUND_MIN_MAX_CREDIT_CONFIG				= "NOT_FOUND_MIN_MAX_CREDIT_CONFIG"
 	NOT_FOUND_API_KEY							= "NOT_FOUND_API_KEY"
 	WRONG_API_KEY								= "WRONG_API_KEY"
+	UPDATE_COURSE_CONDITION_FAIL    			= "UPDATE_COURSE_CONDITION_FAIL"
 )
 
 
@@ -29,5 +30,8 @@ var ErrToDescription = map[string]string{
 	SET_STUDY_RESULT_FAIL_REDIS: "Lỗi hệ thống",
 	SET_MIN_MAX_CREDIT_FAIL_REDIS: "Lỗi hệ thống",
 	NOT_FOUND_MIN_MAX_CREDIT_CONFIG: "Không tìm thấy thông tin cấu hình số tín chỉ",
+	NOT_FOUND_API_KEY: "Không tìm thấy api key",
+	WRONG_API_KEY: "Sai api key",
+	UPDATE_COURSE_CONDITION_FAIL : "Không thể cập nhật điều kiện môn học",
 
 }

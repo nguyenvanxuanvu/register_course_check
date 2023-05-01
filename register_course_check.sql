@@ -18,13 +18,13 @@ CREATE TABLE `course` (
 
 DROP TABLE IF EXISTS `course_condition`;
 CREATE TABLE `course_condition` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `course_id` varchar(45) NOT NULL,
-  `condition` json NOT NULL,
+  `course_condition` json NOT NULL,
   PRIMARY KEY (`id`),
   KEY `course_id_fk_idx` (`course_id`),
   CONSTRAINT `course_id_fk` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 DROP TABLE IF EXISTS `min_max_credit`;
 CREATE TABLE `min_max_credit` (
@@ -91,22 +91,24 @@ INSERT INTO `course` (`id`, `course_name`, `num_credits`, `faculty`) VALUES
 ('PSY', 'Psychology', 3, 'Demo'),
 ('SOC', 'Solciology', 3, 'Demo'),
 ('SPAN', 'Spanish', 3, 'Demo'),
-('test', 'test', 3, 'Demo');
+('test', 'test', 3, 'Demo'),
+('test1', 'test1', 3, 'Demo');
 
-INSERT INTO `course_condition` (`id`, `course_id`, `condition`) VALUES
+INSERT INTO `course_condition` (`id`, `course_id`, `course_condition`) VALUES
 (105, 'C S', '{\"course\": {\"type\": 1, \"courseDesId\": \"ENGL\"}}');
-INSERT INTO `course_condition` (`id`, `course_id`, `condition`) VALUES
+INSERT INTO `course_condition` (`id`, `course_id`, `course_condition`) VALUES
 (106, 'ENGR', '{\"course\": {\"type\": 1, \"courseDesId\": \"GER\"}}');
-INSERT INTO `course_condition` (`id`, `course_id`, `condition`) VALUES
+INSERT INTO `course_condition` (`id`, `course_id`, `course_condition`) VALUES
 (107, 'PHYS', '{\"course\": {\"type\": 1, \"courseDesId\": \"SPAN\"}}');
-INSERT INTO `course_condition` (`id`, `course_id`, `condition`) VALUES
+INSERT INTO `course_condition` (`id`, `course_id`, `course_condition`) VALUES
 (108, 'BIOL', '{\"course\": {\"type\": 2, \"courseDesId\": \"CHM\"}}'),
 (109, 'MBIO', '{\"course\": {\"type\": 2, \"courseDesId\": \"BIOL\"}}'),
 (110, 'ALG', '{\"course\": {\"type\": 3, \"courseDesId\": \"CALC\"}}'),
 (111, 'CALC', '{\"course\": {\"type\": 3, \"courseDesId\": \"ALG\"}}'),
 (112, 'COM', '{\"op\": \"OR\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"ENGL\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"GER\"}}, {\"op\": \"AND\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"SPAN\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"CHIN\"}}]}]}'),
 (113, 'PHAR', '{\"op\": \"AND\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"CHM\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"BIOL\"}}]}'),
-(114, 'test', '{\"op\": \"OR\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"ENGL\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"GER\"}}, {\"op\": \"AND\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"SPAN\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"CHIN\"}}]}]}');
+(114, 'test', '{\"course\": {\"type\": 1, \"courseDesId\": \"ENGL\"}}'),
+(115, 'test1', '{\"op\": \"OR\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"ENGL\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"GER\"}}, {\"op\": \"AND\", \"leaves\": [{\"course\": {\"type\": 1, \"courseDesId\": \"SPAN\"}}, {\"course\": {\"type\": 1, \"courseDesId\": \"CHIN\"}}]}]}');
 
 INSERT INTO `min_max_credit` (`id`, `academic_program`, `semester`, `min_credit`, `max_credit`) VALUES
 (1, 'DT', 191, 14, 21);

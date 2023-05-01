@@ -15,3 +15,7 @@ func (s *controllerImpl) Check(ctx context.Context, req *dto.CheckRequestDTO) (*
 func (s *controllerImpl) Suggestion(ctx context.Context, req *dto.SuggestionRequestDTO) (*dto.SuggestionResponseDTO, error) {
 	return s.registerCourseCheckService.Suggestion(ctx, req)
 }
+
+func (s *controllerImpl) UpdateCourseCondition(ctx context.Context, req []dto.CourseConditionConfig) (bool, error) {
+	return s.registerCourseCheckService.UpdateCourseCondition(ctx, req)
+}

@@ -36,7 +36,7 @@ func (r *configRepository) GetCourseConfigs() ([]*dto.CourseConfig, error) {
 }
 
 const COURSE_CONDITION_TABLE = "course_condition"
-const SELECT_COURSE_CONDITION_CONFIG = "SELECT `course_id`,`condition` FROM `" + COURSE_CONDITION_TABLE + "`"
+const SELECT_COURSE_CONDITION_CONFIG = "SELECT `course_id`,`course_condition` FROM `" + COURSE_CONDITION_TABLE + "`"
 
 func (r *configRepository) GetCourseConditionConfigs() (map[string]*dto.CourseConditionConfig, error) {
 	rows, err := r.db.Queryx(SELECT_COURSE_CONDITION_CONFIG)

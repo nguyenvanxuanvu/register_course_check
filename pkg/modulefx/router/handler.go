@@ -30,6 +30,8 @@ func registerHandler(r gin.IRoutes, controller controller.Controller, dbConfig d
 		getControllerEndPoint("Check", getCheckRequestDTO, controller.Check, CONTENT_JSON))
 	r.POST("/register_course/suggestion", authenticateMiddleware(authen),
 		getControllerEndPoint("Suggestion", getSuggestionRequestDTO, controller.Suggestion, CONTENT_JSON))
+	r.POST("/update_course_condition", authenticateMiddleware(authen),
+		getControllerEndPoint("UpdateCourseCondition", getUpdateCourseConditionRequestDTO, controller.UpdateCourseCondition, CONTENT_JSON))
 }
 
 func getControllerEndPoint[Req any, Resp any](method string,
@@ -92,4 +94,15 @@ func getSuggestionRequestDTO(ctx *gin.Context) (*dto.SuggestionRequestDTO, error
 	}
 
 	return &suggestionRequestDTO, nil
+}
+
+func getUpdateCourseConditionRequestDTO(ctx *gin.Context) ([]dto.CourseConditionConfig, error) {
+
+	updateCourseConditionRequestDTO := []dto.CourseConditionConfig{}
+
+	if err := ctx.BindJSON(&updateCourseConditionRequestDTO); err != nil {
+		return nil, err
+	}
+
+	return updateCourseConditionRequestDTO, nil
 }

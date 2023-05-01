@@ -81,3 +81,22 @@ func (r *repository) GetListCourseOfTeachingPlan(faculty string, speciality stri
 
 	return rtListCourse, rtFreeCreditInfo, nil
 }
+
+
+const UPDATE_COURSE_CONDITION = "UPDATE " + COURSE_CONDITION_TABLE + " SET course_condition = ? WHERE course_id = ?;"
+
+
+func (r *repository) UpdateCourseCondition(listCourseCondition []dto.CourseConditionConfig) (bool, error) {
+	for _, condition := range listCourseCondition{
+		
+		conditionJson, err := json.Marshal(condition.Condition)
+		if err != nil {
+			return false, err
+		}
+		_, err = r.db.Exec(UPDATE_COURSE_CONDITION, conditionJson , condition.CourseId)
+		if err != nil {
+			return false, err
+		}
+	}
+	return true, nil
+}

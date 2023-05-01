@@ -6,7 +6,7 @@ import (
 )
 
 type CourseConfig struct {
-	Id                    string `db:"id"`
+	Id                    string `db:"id"` 
 	CourseName            string `db:"course_name"`
 	NumCredits            int    `db:"num_credits"`
 	Faculty               string `db:"faculty"`
@@ -15,21 +15,21 @@ type CourseConfig struct {
 
 type CourseConditionConfig struct {
 	CourseId  string           `db:"course_id"`
-	Condition *CourseCondition `db:"condition"` // json type - object struct
+	Condition *CourseCondition `db:"course_condition"` // json type - object struct
 }
 
 type CourseCondition struct {
-	Op     string               `db:"op,omitempty"`
-	Course *CourseConditionInfo `db:"course,omitempty"`
-	Leaves []*CourseCondition   `db:"leaves,omitempty"`
+	Op     string               `json:"op,omitempty"`
+	Course *CourseConditionInfo `json:"course,omitempty"`
+	Leaves []*CourseCondition   `json:"leaves,omitempty"`
 }
 
 // Type
 // 1: Tien quyet   2: Hoc truoc  3: Song hanh
 
 type CourseConditionInfo struct {
-	CourseDesId string `db:"courseDesId,omitempty"`
-	Type        int    `db:"type,omitempty"`
+	CourseDesId string `json:"courseDesId,omitempty"`
+	Type        int    `json:"type,omitempty"`
 }
 
 type FreeCreditInfo struct {
