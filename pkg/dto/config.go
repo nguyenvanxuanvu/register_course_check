@@ -6,7 +6,7 @@ import (
 )
 
 type CourseConfig struct {
-	Id                    string `db:"id"` 
+	Id                    string `db:"id"`
 	CourseName            string `db:"course_name"`
 	NumCredits            int    `db:"num_credits"`
 	Faculty               string `db:"faculty"`
@@ -34,9 +34,8 @@ type CourseConditionInfo struct {
 
 type FreeCreditInfo struct {
 	Group string `db:"group,omitempty"`
-	Nums int `db:"nums,omitempty"`
+	Nums  int    `db:"nums,omitempty"`
 }
-
 
 // Value implements the driver.Valuer interface
 func (f CourseCondition) Value() (driver.Value, error) {
@@ -45,6 +44,14 @@ func (f CourseCondition) Value() (driver.Value, error) {
 
 // Scan implements the sql.Scanner interface
 func (f *CourseCondition) Scan(value interface{}) error {
-	var data = []byte(value.([]uint8))
+
+	var data []byte
+	switch value.(type) {
+	case []uint8:
+		data = []byte(value.([]uint8))
+	case string:
+		data = []byte(value.(string))
+	}
+
 	return json.Unmarshal(data, &f)
 }
