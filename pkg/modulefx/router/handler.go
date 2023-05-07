@@ -62,12 +62,12 @@ func authenticateMiddleware(authenticator authen.Authenticator) gin.HandlerFunc 
 	return func(gCtx *gin.Context) {
 		apiKey := gCtx.Request.Header["Apikey"]
 		if len(apiKey) == 0 {
-			responseWithError(gCtx, http.StatusForbidden, errors.New(common.NOT_FOUND_API_KEY), "")
+			responseWithError(gCtx, http.StatusForbidden, errors.New(common.NOT_FOUND_API_KEY), ErrToDescription(errors.New(common.NOT_FOUND_API_KEY)))
 			return
 		}
 		check := authenticator.Authen(apiKey[0])
 		if check == false {
-			responseWithError(gCtx, http.StatusForbidden, errors.New(common.WRONG_API_KEY), "")
+			responseWithError(gCtx, http.StatusForbidden, errors.New(common.WRONG_API_KEY), ErrToDescription(errors.New(common.WRONG_API_KEY)))
 			return
 		}
 		gCtx.Next()

@@ -82,17 +82,44 @@ func (r *repository) GetListCourseOfTeachingPlan(faculty string, speciality stri
 	return rtListCourse, rtFreeCreditInfo, nil
 }
 
-
+const FIND_BY_COURSE_ID = "SELECT * FROM " + COURSE_CONDITION_TABLE + " WHERE course_id = ?;"
+const INSERT_COURSE_CONDITION = "INSERT INTO " + COURSE_CONDITION_TABLE + "(course_id, course_condition) VALUES(?,?);" 
 const UPDATE_COURSE_CONDITION = "UPDATE " + COURSE_CONDITION_TABLE + " SET course_condition = ? WHERE course_id = ?;"
+const DELETE_COURSE_CONDITION = "DELETE FROM " + COURSE_CONDITION_TABLE + " WHERE course_id = ?;"
+
 
 
 func (r *repository) UpdateCourseCondition(listCourseCondition []dto.CourseConditionConfig) (bool, error) {
 	for _, condition := range listCourseCondition{
-		
 		conditionJson, err := json.Marshal(condition.Condition)
 		if err != nil {
 			return false, err
 		}
+
+		rows, err := r.db.Queryx(FIND_BY_COURSE_ID, condition.CourseId)
+		if err != nil {
+			return false, err
+		}
+
+		exist := rows.Next()
+
+		for !exist && condition.Condition != nil {
+			_, err = r.db.Exec(INSERT_COURSE_CONDITION, condition.CourseId , conditionJson)
+			if err != nil {
+				return false, err
+			}
+			return true, nil
+		} 
+		
+		
+		for exist && condition.Condition == nil {
+			_, err = r.db.Exec(DELETE_COURSE_CONDITION, condition.CourseId)
+			if err != nil {
+				return false, err
+			}
+			return true, nil
+		}
+		
 		_, err = r.db.Exec(UPDATE_COURSE_CONDITION, conditionJson , condition.CourseId)
 		if err != nil {
 			return false, err

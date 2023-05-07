@@ -21,6 +21,8 @@ mock:
 	
 	mockgen -destination=testing/mocks/Client.go -package=mocks github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/client Client
 	mockgen -destination=testing/mocks/Repository.go -package=mocks github.com/nguyenvanxuanvu/register_course_check/pkg/modulefx/repository Repository
+	mockgen -destination=testing/mocks/RedisCache.go -package=mocks github.com/nguyenvanxuanvu/register_course_check/redis RedisCache
+
 
 
 
