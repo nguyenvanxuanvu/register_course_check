@@ -13,7 +13,7 @@ debug:
   gin: release
 
 redis:
-  addresses: redis://red-ch51g02k728glsiqtrvg:6379
+  addresses: redis://red-ci0b31d269v79rkskmm0:6379
   
 cache:
   prefix: "prod"
