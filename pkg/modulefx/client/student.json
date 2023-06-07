@@ -11,29 +11,14 @@
         "semesterOrder":   3,
         "studyResults": [
             {
-                "courseId":   "ENGL",
-                "courseName": "English",
+                "courseId":   "CO1007",
+                "courseName": "Discrete Structures for Computing",
                 "result":     1
             },
             {
-                "courseId":   "GER",
-                "courseName": "German",
-                "result":     2
-            },
-            {
-                "courseId":   "SPAN",
-                "courseName": "Spanish",
+                "courseId":   "CO2003",
+                "courseName": "Data Structures and Algorithms",
                 "result":     3
-            },
-            {
-                "courseId":   "BAND",
-                "courseName": "Band",
-                "result":     1
-            },
-            {
-                "courseId":   "CHM",
-                "courseName": "Chemistry",
-                "result":     1
             }
         ]
     },
@@ -47,35 +32,16 @@
       "semesterOrder":   3,
       "studyResults": [
         {
-            "courseId":   "ENGL",
-            "courseName": "English",
-            "result":     3
-        },
-        {
-            "courseId":   "GER",
-            "courseName": "German",
-            "result":     3
-        },
-        {
-            "courseId":   "SPAN",
-            "courseName": "Spanish",
+            "courseId":   "CO1007",
+            "courseName": "Discrete Structures for Computing",
             "result":     1
         },
         {
-            "courseId":   "BAND",
-            "courseName": "Band",
-            "result":     1
-        },
-        {
-            "courseId":   "CHM",
-            "courseName": "Chemistry",
-            "result":     1
-        },
-        {
-            "courseId":   "CALC",
-            "courseName": "Chemistry",
+            "courseId":   "CO2003",
+            "courseName": "Data Structures and Algorithms",
             "result":     3
         }
+        
     ]
     },
     {
@@ -87,11 +53,11 @@
         "speciality":      "KHM",
         "semesterOrder":   3,
         "studyResults": [
-          {
-              "courseId":   "CO6",
-              "courseName": "Công nghệ phần mềm",
-              "result":     1
-          }
+            {
+                "courseId":   "CO2003",
+                "courseName": "Data Structures and Algorithms",
+                "result":     3
+            }
         ]
       },
       {
@@ -103,11 +69,11 @@
         "speciality":      "KHM",
         "semesterOrder":   3,
         "studyResults": [
-          {
-              "courseId":   "CO6",
-              "courseName": "Công nghệ phần mềm",
-              "result":     1
-          }
+            {
+                "courseId":   "CO2003",
+                "courseName": "Data Structures and Algorithms",
+                "result":     3
+            }
         ]
       }
     
