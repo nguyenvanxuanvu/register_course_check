@@ -1,84 +1,109 @@
 {
-    
     "students": [
-    {
-        "studentId":       "1914698",
-        "studentName":     "Student, Phuc",
-        "studentStatus":   1,
-        "falcuty":         "KHMT",
-        "academicProgram": "DT",
-        "speciality":      "KHM",
-        "semesterOrder":   3,
-        "studyResults": [
-            {
-                "courseId":   "CO1007",
-                "courseName": "Discrete Structures for Computing",
-                "result":     1
-            },
-            {
-                "courseId":   "CO2003",
-                "courseName": "Data Structures and Algorithms",
-                "result":     3
-            }
-        ]
-    },
-    {
-      "studentId":       "1915982",
-      "studentName":     "Nguyễn Văn Xuân Vũ",
-      "studentStatus":   1,
-      "falcuty":         "KHMT",
-      "academicProgram": "DT",
-      "speciality":      "KHM",
-      "semesterOrder":   3,
-      "studyResults": [
         {
-            "courseId":   "CO1007",
-            "courseName": "Discrete Structures for Computing",
-            "result":     1
+            "studentId": "1002",
+            "studentName": "Brian",
+            "studentStatus": 1,
+            "falcuty": "KHMT",
+            "academicProgram": "DT",
+            "speciality": "KHM",
+            "semesterOrder": 3,
+            "studyResults": [
+                {
+                    "courseId": "LA1003",
+                    "courseName": "LA1003",
+                    "result": 1
+                },
+                {
+                    "courseId": "LA1005",
+                    "courseName": "LA1005",
+                    "result": 1
+                },
+                {
+                    "courseId": "LA1007",
+                    "courseName": "LA1007",
+                    "result": 1
+                },
+                {
+                    "courseId": "LA1009",
+                    "courseName": "LA1009",
+                    "result": 1
+                }
+            ]
         },
         {
-            "courseId":   "CO2003",
-            "courseName": "Data Structures and Algorithms",
-            "result":     3
+            "studentId": "1914698",
+            "studentName": "Student, Phuc",
+            "studentStatus": 1,
+            "falcuty": "KHMT",
+            "academicProgram": "DT",
+            "speciality": "KHM",
+            "semesterOrder": 3,
+            "studyResults": [
+                {
+                    "courseId": "CO1007",
+                    "courseName": "Discrete Structures for Computing",
+                    "result": 1
+                },
+                {
+                    "courseId": "CO2003",
+                    "courseName": "Data Structures and Algorithms",
+                    "result": 3
+                }
+            ]
+        },
+        {
+            "studentId": "1915982",
+            "studentName": "Nguyễn Văn Xuân Vũ",
+            "studentStatus": 1,
+            "falcuty": "KHMT",
+            "academicProgram": "DT",
+            "speciality": "KHM",
+            "semesterOrder": 3,
+            "studyResults": [
+                {
+                    "courseId": "CO1007",
+                    "courseName": "Discrete Structures for Computing",
+                    "result": 1
+                },
+                {
+                    "courseId": "CO2003",
+                    "courseName": "Data Structures and Algorithms",
+                    "result": 3
+                }
+            ]
+        },
+        {
+            "studentId": "1915983",
+            "studentName": "Nguyễn Văn Xuân Vũ",
+            "studentStatus": 1,
+            "falcuty": "KHMT",
+            "academicProgram": "DT",
+            "speciality": "KHM",
+            "semesterOrder": 3,
+            "studyResults": [
+                {
+                    "courseId": "CO2003",
+                    "courseName": "Data Structures and Algorithms",
+                    "result": 3
+                }
+            ]
+        },
+        {
+            "studentId": "1915984",
+            "studentName": "Nguyễn Văn",
+            "studentStatus": 2,
+            "falcuty": "KHMT",
+            "academicProgram": "DT",
+            "speciality": "KHM",
+            "semesterOrder": 3,
+            "studyResults": [
+                {
+                    "courseId": "CO2003",
+                    "courseName": "Data Structures and Algorithms",
+                    "result": 3
+                }
+            ]
         }
-        
     ]
-    },
-    {
-        "studentId":       "1915983",
-        "studentName":     "Nguyễn Văn Xuân Vũ",
-        "studentStatus":   1,
-        "falcuty":         "KHMT",
-        "academicProgram": "DT",
-        "speciality":      "KHM",
-        "semesterOrder":   3,
-        "studyResults": [
-            {
-                "courseId":   "CO2003",
-                "courseName": "Data Structures and Algorithms",
-                "result":     3
-            }
-        ]
-      },
-      {
-        "studentId":       "1915984",
-        "studentName":     "Nguyễn Văn",
-        "studentStatus":   1,
-        "falcuty":         "KHMT",
-        "academicProgram": "DT",
-        "speciality":      "KHM",
-        "semesterOrder":   3,
-        "studyResults": [
-            {
-                "courseId":   "CO2003",
-                "courseName": "Data Structures and Algorithms",
-                "result":     3
-            }
-        ]
-      }
-    
-  ]
 }
-
-
-
