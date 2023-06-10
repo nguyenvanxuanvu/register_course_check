@@ -22,9 +22,9 @@ cache:
 
 mysql:
   url: db4free.net:3306
-  username: register_course
+  username: register_check
   password: pw112358
-  schema: register_course
+  schema: register_check
 
 authen:
   api-key: "abcd"
