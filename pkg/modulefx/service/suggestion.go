@@ -28,27 +28,54 @@ func (s *registerCourseCheckServiceImp) Suggestion(ctx context.Context, req *dto
 	var courseSuggestionsFailReasons []dto.CourseSuggestion
 
 	failCoursesChan := make(chan chanResult[bool], 1)
-	teachingPlanCoursesChan := make(chan chanResult[bool], 1)
 	minMaxCreditChan := make(chan chanResult[bool], 1)
 
 	// get fail course list of student
-	go s.getFailCoursesAsync(ctx, studentId, semester, &courseSuggestionsFailReasons, failCoursesChan)
-
-	// get list course of teaching plan of student
-
-	var freeCreditInfo []dto.FreeCreditInfo
-	var courseSuggestionsTeachingPlan []dto.CourseSuggestion
-	go s.getCoursesTeachingPlan(ctx, studentId, studentInfo, &courseSuggestionsTeachingPlan, &freeCreditInfo, teachingPlanCoursesChan)
+	var listStudyResult []client.CourseResult
+	go s.getFailCoursesAsync(ctx, studentId, semester, &courseSuggestionsFailReasons, &listStudyResult, failCoursesChan)
 
 	// get min max credit config for student
 	var minCredit, maxCredit int
 	go s.getMinMaxCreditAsync(ctx, studentId, studentInfo.AcademicProgram, semester, &minCredit, &maxCredit, minMaxCreditChan)
 
-	failCoursesRes, teachingPlanCoursesRes, minMaxCreditRes := <-failCoursesChan, <-teachingPlanCoursesChan, <-minMaxCreditChan
-	if failCoursesRes.err != nil || teachingPlanCoursesRes.err != nil || minMaxCreditRes.err != nil {
-		return nil, oneOf(failCoursesRes.err, teachingPlanCoursesRes.err, minMaxCreditRes.err)
+	failCoursesRes, minMaxCreditRes := <-failCoursesChan, <-minMaxCreditChan
+	if failCoursesRes.err != nil || minMaxCreditRes.err != nil {
+		return nil, oneOf(failCoursesRes.err, minMaxCreditRes.err)
 	}
-	failReasons = append(courseSuggestionsFailReasons, courseSuggestionsTeachingPlan...)
+
+	// get list course of teaching plan of student
+
+	var freeCreditInfo []dto.FreeCreditInfo
+	var courseSuggestionsTeachingPlan []dto.CourseSuggestion
+	s.getCoursesTeachingPlan(ctx, studentId, studentInfo, &courseSuggestionsTeachingPlan, &freeCreditInfo, listStudyResult)
+
+	var lastRTcourseSuggestionTeachingPlan []dto.CourseSuggestion
+	for _, courseInTeachingPlan := range courseSuggestionsTeachingPlan {
+		flag := false
+		for _, course := range courseSuggestionsFailReasons {
+			if course.CourseId == courseInTeachingPlan.CourseId {
+				flag = true
+				break
+			}
+		}
+		if flag {
+			continue
+		}
+		lastRTcourseSuggestionTeachingPlan = append(lastRTcourseSuggestionTeachingPlan, courseInTeachingPlan)
+
+	}
+	// FOR UNIQUE
+	var lastForUniquecourseSuggestionTeachingPlan []dto.CourseSuggestion
+	keys := make(map[string]bool)
+
+	for _, suggestion := range lastRTcourseSuggestionTeachingPlan{
+		if _, value := keys[suggestion.CourseId]; !value {
+            keys[suggestion.CourseId] = true
+            lastForUniquecourseSuggestionTeachingPlan = append(lastForUniquecourseSuggestionTeachingPlan, suggestion)
+        }
+	}
+
+	failReasons = append(courseSuggestionsFailReasons, lastForUniquecourseSuggestionTeachingPlan...)
 	return &dto.SuggestionResponseDTO{
 		Courses:          failReasons,
 		HintOfFreeCredit: freeCreditInfo,
@@ -57,7 +84,7 @@ func (s *registerCourseCheckServiceImp) Suggestion(ctx context.Context, req *dto
 	}, nil
 }
 
-func (s *registerCourseCheckServiceImp) getFailCoursesAsync(ctx context.Context, studentId string, semester int, courseSuggestionsFailReasons *[]dto.CourseSuggestion, c chan<- chanResult[bool]) {
+func (s *registerCourseCheckServiceImp) getFailCoursesAsync(ctx context.Context, studentId string, semester int, courseSuggestionsFailReasons *[]dto.CourseSuggestion, listStudyResultReturn *[]client.CourseResult, c chan<- chanResult[bool]) {
 	result := chanResult[bool]{}
 	result.result = false
 
@@ -72,6 +99,8 @@ func (s *registerCourseCheckServiceImp) getFailCoursesAsync(ctx context.Context,
 			return
 		}
 	}
+	// list study return
+	*listStudyResultReturn = listStudyResult
 
 	for _, course := range listStudyResult {
 		if course.Result == 3 {
@@ -88,19 +117,38 @@ func (s *registerCourseCheckServiceImp) getFailCoursesAsync(ctx context.Context,
 	c <- result
 }
 
-func (s *registerCourseCheckServiceImp) getCoursesTeachingPlan(ctx context.Context, studentId string, studentInfo *client.StudentInfo, courseSuggestionsTeachingPlan *[]dto.CourseSuggestion, freeCreditInfo *[]dto.FreeCreditInfo, c chan<- chanResult[bool]) {
-	result := chanResult[bool]{}
-	result.result = false
+func (s *registerCourseCheckServiceImp) getCoursesTeachingPlan(ctx context.Context, studentId string, studentInfo *client.StudentInfo, courseSuggestionsTeachingPlan *[]dto.CourseSuggestion, freeCreditInfo *[]dto.FreeCreditInfo, listStudyResult []client.CourseResult) error {
 
 	listCourse, freeCreditInfoFromDB, err := s.repository.GetListCourseOfTeachingPlan(studentInfo.Falcuty, studentInfo.Speciality, studentInfo.AcademicProgram, studentInfo.SemesterOrder)
 	if err != nil {
-		result.err = err
-		c <- result
-		return
+		return err
 	}
 	*freeCreditInfo = freeCreditInfoFromDB
 
+	// loai mon da dat
+	var listCourseForCheck []string
+	var listCourseNotForCheck []string
 	for _, course := range listCourse {
+		flag := false
+		for _, result := range listStudyResult {
+			if result.CourseId == course && result.Result == 1 {
+				flag = true
+				break
+
+			}
+
+		}
+		if flag {
+			continue
+		}
+		if s.dbConfig.GetCourseConfig(course).CourseConditionConfig != nil {
+			listCourseForCheck = append(listCourseForCheck, course)
+		} else {
+			listCourseNotForCheck = append(listCourseNotForCheck, course)
+		}
+
+	}
+	for _, course := range listCourseNotForCheck {
 		courseModel := dto.CourseSuggestion{
 			Type: TEACHING_PLAN,
 		}
@@ -110,10 +158,39 @@ func (s *registerCourseCheckServiceImp) getCoursesTeachingPlan(ctx context.Conte
 			courseModel.NumCredits = s.dbConfig.GetCourseConfig(course).NumCredits
 			*courseSuggestionsTeachingPlan = append(*courseSuggestionsTeachingPlan, courseModel)
 		}
+	}
+
+	var courseCheckResults []*dto.CourseCheck
+
+	s.checkListCourseConditionForSuggestion(ctx, &courseCheckResults, listCourseForCheck, studentId, listStudyResult)
+
+	for _, course := range courseCheckResults {
+		courseModel := dto.CourseSuggestion{
+			Type: TEACHING_PLAN,
+		}
+		if cf := s.dbConfig.GetCourseConfig(course.CourseId); cf != nil {
+			if course.CheckResult == PASS {
+				courseModel.CourseId = course.CourseId
+				courseModel.CourseName = cf.CourseName
+				courseModel.NumCredits = s.dbConfig.GetCourseConfig(course.CourseId).NumCredits
+				*courseSuggestionsTeachingPlan = append(*courseSuggestionsTeachingPlan, courseModel)
+			} else {
+				for _, fail := range course.FailReasons {
+					courseModel = dto.CourseSuggestion{
+						Type: TEACHING_PLAN,
+					}
+					courseModel.CourseId = fail.CourseDesId
+					courseModel.CourseName = fail.CourseDesName
+					courseModel.NumCredits = s.dbConfig.GetCourseConfig(fail.CourseDesId).NumCredits
+					*courseSuggestionsTeachingPlan = append(*courseSuggestionsTeachingPlan, courseModel)
+
+				}
+			}
+
+		}
 
 	}
-	result.result = true
-	c <- result
+	return nil
 }
 
 func (s *registerCourseCheckServiceImp) getMinMaxCreditAsync(ctx context.Context, studentId string, academicProgram string, semester int, minCredit *int, maxCredit *int, c chan<- chanResult[bool]) {

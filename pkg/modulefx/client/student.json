@@ -59,7 +59,7 @@
             "falcuty": "KHMT",
             "academicProgram": "DT",
             "speciality": "KHM",
-            "semesterOrder": 3,
+            "semesterOrder": 4,
             "studyResults": [
                 {
                     "courseId": "CO1007",
@@ -70,6 +70,11 @@
                     "courseId": "CO2003",
                     "courseName": "Data Structures and Algorithms",
                     "result": 3
+                },
+                {
+                    "courseId": "CO1027",
+                    "courseName": "Data Structures and Algorithms",
+                    "result": 1
                 }
             ]
         },

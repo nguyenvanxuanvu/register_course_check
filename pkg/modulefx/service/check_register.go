@@ -134,7 +134,7 @@ func (s *registerCourseCheckServiceImp) CheckConditionRecursion(courseId string,
 		} else {
 			for _, obj := range c.Leaves {
 				checkResult := s.CheckConditionRecursion(courseId, courseName, courseCheckResult, obj, results, courseRegisterList)
-				if checkResult == true {
+				if checkResult  {
 					return true
 				}
 			}
